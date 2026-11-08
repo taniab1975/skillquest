@@ -4,17 +4,18 @@ async function startWorld() {
 const dockAssets = await loadSouthDock();
 const arrivalLayout = typeof southDockLayout === 'object'
   ? southDockLayout : {hub:[7.3,16.9],lab:[-8.1,13]};
+const labName=index=>labThemes[index].name+' Skills Lab';
 const places = [
   ['Orientation Hub', ...arrivalLayout.hub, '#76e5bb', 2],
   ['My Portfolio', 0, -17, '#f1ce92', 3],
-  ['Communication Skills Lab', ...arrivalLayout.lab, labThemes[2].accent, 4],
-  ['Collaboration Skills Lab', 9, 8, labThemes[3].accent, 2],
-  ['Initiative Skills Lab', -15, 6, labThemes[4].accent, 3],
-  ['Problem-solving Skills Lab', 14, 1, labThemes[5].accent, 4],
-  ['Adaptability Skills Lab', -14, -8, labThemes[6].accent, 2],
-  ['Self-management Skills Lab', 14, -8, labThemes[7].accent, 3],
-  ['Creativity Skills Lab', -8, -14, labThemes[8].accent, 3],
-  ['Leadership Skills Lab', 8, -14, labThemes[9].accent, 5],
+  [labName(2), ...arrivalLayout.lab, labThemes[2].accent, 4],
+  [labName(3), 9, 8, labThemes[3].accent, 2],
+  [labName(4), -15, 6, labThemes[4].accent, 3],
+  [labName(5), 14, 1, labThemes[5].accent, 4],
+  [labName(6), -14, -8, labThemes[6].accent, 2],
+  [labName(7), 14, -8, labThemes[7].accent, 3],
+  [labName(8), -8, -14, labThemes[8].accent, 3],
+  [labName(9), 8, -14, labThemes[9].accent, 5],
   ['Discovery Plaza', 0, 0, '#a6f5cf', 0],
 ];
 const byId = id => document.getElementById(id);
@@ -124,9 +125,11 @@ function labDirectory() {
   for (const [key,theme] of Object.entries(labThemes)) {
     const index=Number(key);
     const row=add('li','',list);
-    const visit=button(places[index][0],index===2 ? approachCommunication : ()=>travel(index),row);
+    const visit=button('',index===2 ? approachCommunication : ()=>travel(index),row);
     visit.style.setProperty('--lab-accent',theme.accent);
-    add('small',theme.landmark,visit);
+    visit.append(createLabMark(index));
+    const name=add('span',places[index][0],visit);
+    add('small',theme.landmark,name);
   }
 }
 function openPlace(index, focus = true) {
@@ -142,8 +145,10 @@ function openPlace(index, focus = true) {
   byId('world-controls').hidden = insideStudio;
   byId('title').textContent = places[index][0];
   const theme=labThemes[index];
-  byId('label').textContent = ({0:'01 / SOUTH DOCK', 1:'YOUR PRIVATE COLLECTION', 2:'03 / INSIDE THE STUDIO', 10:'02 / DISCOVERY PLAZA'})[index] || theme.landmark;
-  byId('label').style.color=theme?.accent||'';
+  const label=byId('label');
+  label.textContent=({0:'01 / SOUTH DOCK', 1:'YOUR PRIVATE COLLECTION', 2:'03 / INSIDE THE STUDIO', 10:'02 / DISCOVERY PLAZA'})[index] || theme.landmark;
+  label.style.color=theme?.accent||'';
+  if(theme) label.prepend(createLabMark(index));
   panel.replaceChildren();
   if (index === 0) {
     add('p', 'Welcome to Skillsville. Follow the mint trail to Discovery Plaza, then explore the Skills Labs, coastal promenade and My Portfolio terrace. A relay beacon has gone quiet near the glass-domed Communication Skills Lab.');
@@ -158,7 +163,7 @@ function openPlace(index, focus = true) {
   } else if (index === 2) {
     studio();
   } else if (index === 10) {
-    add('p', 'Each Skills Lab has its own shape, colour and entrance sign. Follow the mint trail toward South Dock to the twin masts of Communication Skills Lab. The path north leads to My Portfolio.');
+    add('p', 'Look for the woven commons, the copper launch ramp and the guiding beacon. The Skills Lab directory shows each building’s mark. The path north leads to My Portfolio.');
     button('Walk to Communication Skills Lab',approachCommunication).className='primary';
     labDirectory();
   } else {

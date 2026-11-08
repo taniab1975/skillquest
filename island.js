@@ -107,7 +107,7 @@ function createIsland(canvas, places, assets = {}) {
     attribute vec3 point, pigment;
     attribute float finishKind;
     uniform vec3 eye, right, up, forward, offset;
-    uniform float aspect, heading, limbSwing, limbPivot, time, stanceSide;
+    uniform float aspect, focal, heading, limbSwing, limbPivot, time, stanceSide;
     uniform vec2 hipPose, kneePose, anklePose;
     varying vec3 color;
     varying float depth;
@@ -163,7 +163,7 @@ function createIsland(canvas, places, assets = {}) {
       finish = finishKind;
       world = vertex + offset;
       shadowPosition = inLight(world)*.5+.5;
-      gl_Position = vec4(dot(p,right)*1.65/aspect, dot(p,up)*1.65, depth*1.00055-.32, depth);
+      gl_Position = vec4(dot(p,right)*focal/aspect, dot(p,up)*focal, depth*1.00055-.32, depth);
     }
   `, `
     ${derivatives ? '#extension GL_OES_standard_derivatives : enable' : ''}
@@ -591,7 +591,7 @@ function createIsland(canvas, places, assets = {}) {
   gl.useProgram(program);
   gl.enable(gl.DEPTH_TEST);
   const attributes = ['point','pigment','finishKind'].map(name => gl.getAttribLocation(program,name));
-  const uniforms = Object.fromEntries(['eye','right','up','forward','offset','aspect','heading','warmSuit','limbSwing','limbPivot','time','glaze','hasShadows','mapView','shadowMap','shadowStep','lightRight','lightUp','lightDepth','labCenter','hubCenter','stanceSide','hipPose','kneePose','anklePose','stoneMap','plantMap','sunsetMap','canopyMap','basaltMap','labSignMap','loadedTextures','hasBasalt'].map(name=>[name,gl.getUniformLocation(program,name)]));
+  const uniforms = Object.fromEntries(['eye','right','up','forward','offset','aspect','focal','heading','warmSuit','limbSwing','limbPivot','time','glaze','hasShadows','mapView','shadowMap','shadowStep','lightRight','lightUp','lightDepth','labCenter','hubCenter','stanceSide','hipPose','kneePose','anklePose','stoneMap','plantMap','sunsetMap','canopyMap','basaltMap','labSignMap','loadedTextures','hasBasalt'].map(name=>[name,gl.getUniformLocation(program,name)]));
   const subtract = (a,b)=>a.map((v,i)=>v-b[i]);
   const cross = ([a,b,c],[x,y,z])=>[b*z-c*y,c*x-a*z,a*y-b*x];
   const unit = a=>a.map(v=>v/Math.hypot(...a));
@@ -1502,7 +1502,7 @@ function createIsland(canvas, places, assets = {}) {
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
-  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,createLabSignAtlas(places));
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,createLabSignAtlas());
   gl.uniform1i(uniforms.labSignMap,6);
   function pilot(color) {
     shell(0,0,[[.46,.31],[1.04,.34],[1.11,.24]],color,16,.65);
@@ -1634,7 +1634,10 @@ function createIsland(canvas, places, assets = {}) {
     const right=unit(cross(forward,[0,1,0]));
     const up=cross(right,forward);
     for(const [name,value] of Object.entries({eye,right,up,forward})) gl.uniform3fv(uniforms[name],value);
-    gl.uniform1f(uniforms.aspect,w/h);
+    const aspect=w/h;
+    const entranceFocal=Math.max(.76,Math.min(1.65,1.18*aspect));
+    gl.uniform1f(uniforms.aspect,aspect);
+    gl.uniform1f(uniforms.focal,1.65+(entranceFocal-1.65)*labFraming);
     gl.uniform1f(uniforms.time,time);
     gl.uniform1f(uniforms.mapView,overview ? 1 : 0);
     gl.activeTexture(gl.TEXTURE0);

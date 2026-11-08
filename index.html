@@ -23,6 +23,8 @@ button:disabled{opacity:.55;cursor:default}
 #studio-scene img{width:100%;display:block;aspect-ratio:3/2;object-fit:cover}
 #studio-scene figcaption{padding:14px 18px;background:#14232d;color:#c9e4df}
 #title{margin-top:8px;scroll-margin:18px}
+#label{display:flex;align-items:center;gap:8px}
+#label .lab-mark{width:22px;height:22px;flex:none}
 .studio-choices{display:grid;gap:8px;margin:16px 0}
 .studio-choices button{text-align:left;padding:10px 14px;font-weight:700}
 .studio-choices small{display:block;font-weight:400}
@@ -31,7 +33,9 @@ button:disabled{opacity:.55;cursor:default}
 .lab-directory{margin-top:18px}
 .lab-directory summary{color:#abf3d6;cursor:pointer;font-weight:700;padding:7px 0}
 .lab-directory ul{padding:0;margin:8px 0 0;list-style:none;display:grid;gap:7px}
-.lab-directory button{width:100%;text-align:left;border-inline-start:4px solid var(--lab-accent)}
+.lab-directory button{width:100%;text-align:left;border-inline-start:4px solid var(--lab-accent);display:grid;grid-template-columns:28px minmax(0,1fr);align-items:center;gap:10px}
+.lab-directory .lab-mark{width:26px;height:26px;color:var(--lab-accent)}
+.lab-directory button:hover .lab-mark{color:#17332b}
 .lab-directory button small{display:block}
 .lab-directory button:hover small{color:#17332b}
 .quiet{margin-top:16px}
@@ -47,4 +51,4 @@ if (new URLSearchParams(location.search).get("view") === "arrival-study") {
   document.getElementById("local-preview").hidden = false;
 }
 </script>
-<script src="south-dock-mesh.js"></script><script src="districts.js?v=lab-identities"></script><script src="island.js?v=lab-identities"></script><script src="world.js?v=lab-identities"></script></html>
+<script src="south-dock-mesh.js"></script><script src="lab-exteriors.js?v=lab-studios"></script><script src="districts.js?v=lab-studios"></script><script src="island.js?v=lab-studios"></script><script src="world.js?v=lab-studios"></script></html>

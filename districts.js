@@ -1,77 +1,6 @@
 'use strict';
 
-const labThemes = {
-  2: {accent:'#70e7df', enamel:'#2f8084', landmark:'Signal observatory',
-    detail:'Twin aerials send a clear signal across the harbour.',
-    symbol:'M3 12h5l3-6 4 17 4-15 3 9h7'},
-  3: {accent:'#a8c8ff', enamel:'#365d9c', landmark:'Linked workshops',
-    detail:'Two blue workshops share one covered meeting place.',
-    symbol:'M13 9H9a6 6 0 0 0 0 12h4m6-12h4a6 6 0 0 1 0 12h-4M11 15h10'},
-  4: {accent:'#ffad7c', enamel:'#b3542b', landmark:'Launch workshop',
-    detail:'A copper sail rises above a workshop for taking the first step.',
-    symbol:'M6 25 24 7M13 7h11v11M5 16v10h10'},
-  5: {accent:'#d3b7ff', enamel:'#695393', landmark:'Systems workshop',
-    detail:'Violet test bays meet around a faceted lens for comparing solutions.',
-    symbol:'M16 4 27 10v12l-11 6-11-6V10l11-6Zm0 12 11-6M5 10l11 6v12'},
-  6: {accent:'#a7eabb', enamel:'#367a52', landmark:'Tidal conservatory',
-    detail:'Jade roof petals open in different directions above the growing beds.',
-    symbol:'M5 21c3-8 10-11 21-14-1 11-7 18-15 18-3 0-5-2-6-4Zm2 5L22 12'},
-  7: {accent:'#ffdf8f', enamel:'#ad7a2b', landmark:'Planning terraces',
-    detail:'Three amber terraces and a clock face give the lab a steady rhythm.',
-    symbol:'M6 8h20v18H6zM6 13h20M11 5v6m10-6v6M11 19h4m3 0h3m-10 3h7'},
-  8: {accent:'#ffafe0', enamel:'#9e4678', landmark:'Prism atelier',
-    detail:'Rose fins and coloured glazing split the roof into a fan of ideas.',
-    symbol:'M16 4l2.9 8.8L28 16l-9.1 3.2L16 28l-2.9-8.8L4 16l9.1-3.2L16 4Z'},
-  9: {accent:'#ffa3a8', enamel:'#8c3348', landmark:'Guiding beacon',
-    detail:'A garnet tower and an open compass crown mark the way for the group.',
-    symbol:'M16 4v5m0 14v5M4 16h5m14 0h5M16 8a8 8 0 1 1 0 16 8 8 0 0 1 0-16Zm3 5-2 5-4 1 1-4 5-2Z'},
-};
-
-function createLabSignAtlas(places) {
-  const atlas=document.createElement('canvas');
-  const cellWidth=512,cellHeight=128;
-  atlas.width=cellWidth*2;
-  atlas.height=cellHeight*4;
-  const ink=atlas.getContext('2d');
-  for (const [key,{accent,symbol}] of Object.entries(labThemes)) {
-    const slot=Number(key)-2,x=slot%2*cellWidth,y=Math.floor(slot/2)*cellHeight;
-    ink.fillStyle='#13272d';
-    ink.fillRect(x,y,cellWidth,cellHeight);
-    ink.strokeStyle='#78664d';
-    ink.lineWidth=4;
-    ink.strokeRect(x+4,y+4,cellWidth-8,cellHeight-8);
-    ink.fillStyle=accent;
-    ink.fillRect(x+12,y+12,8,cellHeight-24);
-    ink.save();
-    ink.translate(x+32,y+27);
-    ink.scale(2.22,2.22);
-    ink.strokeStyle=accent;
-    ink.lineWidth=1.95;
-    ink.lineJoin='round';
-    ink.lineCap='round';
-    ink.stroke(new Path2D(symbol));
-    ink.restore();
-    ink.fillStyle='#fff8e7';
-    ink.font='700 48px system-ui, sans-serif';
-    ink.fillText(places[key][0].replace(' Skills Lab',''),x+115,y+62,381);
-    ink.fillStyle=accent;
-    ink.font='700 26px system-ui, sans-serif';
-    ink.fillText('S K I L L S   L A B',x+117,y+99);
-  }
-  return atlas;
-}
-
-// Dimensions in metres. Each entrance meets its existing south approach.
-const districtPavilions = {
-  1: {roof:'archive', width:3.58, depth:2.36, eave:2.32, rise:1.97, shape:.74},
-  3: {roof:'linked', width:2.75, depth:2.21, eave:2.14, rise:.68, shape:1},
-  4: {roof:'sail', width:2.62, depth:2.14, eave:1.96, rise:2.59, shape:.49},
-  5: {roof:'facets', width:2.52, depth:2.25, eave:2.17, rise:1.03, shape:.31},
-  6: {roof:'petals', width:2.63, depth:2.22, eave:1.82, rise:1.94, shape:1.12},
-  7: {roof:'terraces', width:2.60, depth:2.20, eave:2.07, rise:1.61, shape:.33},
-  8: {roof:'wave', width:2.69, depth:2.24, eave:2.04, rise:2.13, shape:.64},
-  9: {roof:'beacon', width:2.53, depth:2.11, eave:2.32, rise:.96, shape:.86},
-};
+const archivePavilion = {width:3.58,depth:2.36,eave:2.32,rise:1.97,shape:.74};
 
 const plazaCenter = [0,-.53];
 const districtTrees = [
@@ -95,10 +24,10 @@ function terraceHeight(x,z) {
 }
 
 function pavilionBlocks(index, dx, dz) {
-  const pavilion=districtPavilions[index];
-  if (!pavilion) return Math.abs(dx)<2.5 && Math.abs(dz)<2.5;
-  const outline=Math.max(2.5,2/pavilion.shape);
-  return Math.abs(dx/(pavilion.width+.17))**outline+Math.abs(dz/(pavilion.depth+.17))**outline<1;
+  if (index!==1) return labExteriorBlocks(index,dx,dz);
+  const {width,depth,shape}=archivePavilion;
+  const outline=2/shape;
+  return Math.abs(dx/(width+.17))**outline+Math.abs(dz/(depth+.17))**outline<1;
 }
 
 function districtGardenBlocks(x,z) {
@@ -108,7 +37,7 @@ function districtGardenBlocks(x,z) {
 }
 
 function buildSkillsvilleDistricts(places, art, authoredDock, coast, authoredBuildings) {
-  const {finish, tri, quad, box, shell, taper, leaf, coastalTree, rockShelf, shrub, glass, light, breaker, sign} = art;
+  const {finish, tri, quad, box, shell, taper, leaf, coastalTree, rockShelf, shrub, glass, light, breaker} = art;
   const tau=2*Math.PI;
   const ceramic='#e9c79c', pale='#f2dbb3', bronze='#a17248', shadowBronze='#624c3a';
   const mint='#a2f4d6', amber='#ffd49a', stone='#cab195';
@@ -386,277 +315,66 @@ function buildSkillsvilleDistricts(places, art, authoredDock, coast, authoredBui
     for(const side of [-1,1]) box(x+side*(width-.116),y+.15,z,.119,spring-.15,deep,ceramic);
   }
 
-  function nameplate(index,x,y,z,width) {
-    const height=width/4;
-    finish(4);
-    for (const side of [-1,1]) box(x+side*width*.33,y-.19,z-.18,.055,.32,.13,bronze);
-    box(x,y-.04,z-.085,width*.515,height+.08,.104,shadowBronze);
-    sign(index,x,y,z+.023,width,height);
-  }
-
-  const entryProfiles = {
-    linked:[[-.90,.24],[-.90,1.80],[-.73,1.96],[.73,1.96],[.90,1.80],[.90,.24]],
-    sail:[[-.89,.24],[-.89,1.59],[.89,2.09],[.89,.24]],
-    facets:[[-.86,.24],[-.86,1.54],[-.57,1.97],[.57,1.97],[.86,1.54],[.86,.24]],
-    petals:[[-.93,.24],[-.90,1.49],[-.66,1.87],[-.30,2.03],[.14,2.00],[.57,1.80],[.90,1.44],[.91,.24]],
-    terraces:[[-.90,.24],[-.90,1.78],[-.68,1.91],[.68,1.91],[.90,1.78],[.90,.24]],
-    wave:[[-.92,.24],[-.88,1.65],[-.58,2.00],[-.16,1.94],[.25,1.83],[.63,1.95],[.91,1.62],[.92,.24]],
-    beacon:[[-.78,.24],[-.78,1.62],[-.54,1.95],[0,2.12],[.54,1.95],[.78,1.62],[.78,.24]],
-  };
-
-  function labEntrance(index,form,x,y,z,theme) {
-    const outline=entryProfiles[form];
-    const corner=([u,v],rim,d)=>[x+u*(1+.22*rim),y+v+.17*rim*(v-.24)/1.88,z+d];
-    for(let j=1;j<outline.length;j++) {
-      const a=outline[j-1],b=outline[j];
-      finish(18);
-      quad(corner(a,0,.15),corner(b,0,.15),corner(b,1,.15),corner(a,1,.15),pale);
-      quad(corner(a,0,-.085),corner(b,0,-.085),corner(b,0,.15),corner(a,0,.15),ceramic);
-      quad(corner(a,1,.15),corner(b,1,.15),corner(b,1,-.085),corner(a,1,-.085),ceramic);
-      finish(28);
-      quad(corner(a,.50,.155),corner(b,.50,.155),corner(b,.84,.155),corner(a,.84,.155),theme.accent,false);
-    }
-    const lintel=Math.max(...outline.map(([,h])=>h));
-    // Recessed double doors and brass hardware read through the glazed opening.
-    finish(4);
-    for (const u of [-.73,0,.73]) box(x+u,y+.27,z-.037,.024,1.43,.031,shadowBronze);
-    box(x,y+1.70,z-.038,.76,.026,.034,shadowBronze);
-    for (const u of [-.10,.10]) box(x+u,y+.83,z+.022,.024,.31,.026,bronze);
-    finish(17);
-    for (const u of [-.10,.10]) box(x+u,y+.87,z+.050,.012,.20,.011,amber);
-    nameplate(index,x,y+lintel+.14,z+.151,3.33);
-  }
-
-  function linkedWorkshops(x,y,z,theme) {
-    const ratio=1.35;
-    for(const side of [-1,1]) {
-      const cx=x+side*1.33,cz=z+side*.13;
-      const top=y+(side<0?3.11:3.46);
-      finish(18);
-      shell(cx,cz,[[y+.23,1.36],[y+.40,1.37],[y+.48,1.31]],pale,36,ratio);
-      finish(28);
-      shell(cx,cz,[[y+.42,1.31],[y+.70,1.30]],theme.enamel,36,ratio);
-      const atBay=(a,h)=>[cx+Math.cos(a)*1.30,h,cz+Math.sin(a)*1.30*ratio];
-      for(let j=0;j<28;j++) {
-        const a=j*tau/28,b=(j+1)*tau/28;
-        glass([atBay(b,y+.68),atBay(a,y+.68),atBay(a,top-.27),atBay(b,top-.27)],theme.accent,false);
-        if (j%2===0) {
-          finish(4);
-          taper(atBay(a,y+.64),atBay(a,top-.23),.026,.031,shadowBronze);
-        }
-      }
-      finish(18);
-      shell(cx,cz,[[top-.30,1.31],[top-.24,1.46],[top-.16,1.47],[top-.10,1.39]],pale,40,ratio);
-      finish(28);
-      shell(cx,cz,[[top-.15,1.435],[top-.09,1.40],[top+.09,1.14],[top+.18,.89],[top+.18,0]],theme.enamel,40,ratio);
-      finish(18);
-      shell(cx,cz,[[top+.161,.70],[top+.20,.70],[top+.22,.63],[top+.22,.54]],pale,36,ratio);
-      finish(28);
-      shell(cx,cz,[[top+.21,.55],[top+.22,0]],theme.accent,36,ratio);
-    }
-    finish(18);
-    box(x,y+2.23,z+.72,1.76,.21,1.12,pale);
-    finish(28);
-    box(x,y+2.30,z+1.847,1.75,.074,.020,theme.enamel);
-    finish(17);
-    box(x,y+2.237,z+1.85,1.56,.026,.018,amber);
-  }
-
-  function emblem(x,y,z,r,sides,accent,enamel) {
-    const edge=(a,scale,d)=>[x+Math.cos(a)*r*scale,y+Math.sin(a)*r*scale,z+d];
-    for(let j=0;j<sides;j++) {
-      const a=(j+.5)*tau/sides,b=(j+1.5)*tau/sides;
-      finish(18);
-      quad(edge(a,1,-.13),edge(b,1,-.13),edge(b,1,0),edge(a,1,0),pale);
-      finish(28);
-      quad(edge(a,1,0),edge(b,1,0),edge(b,.78,.012),edge(a,.78,.012),accent,false);
-      tri([x,y,z+.013],edge(a,.78,.013),edge(b,.78,.013),enamel,false);
-    }
-  }
-
-  function tidalPetals(x,y,z,theme) {
-    for(const side of [-1,1]) {
-      const edge=(t,edgeWidth,dy)=>{
-        const flare=Math.sin(Math.PI*t);
-        return [x+side*(.61+t*1.57+edgeWidth*.68*flare),
-          y+2.65+.92*t+.36*flare+dy,z+(side*.18+t*.84-.68)+edgeWidth*.77*flare];
-      };
-      for(let j=0;j<24;j++) {
-        const a=j/24,b=(j+1)/24;
-        finish(18);
-        quad(edge(a,-1,-.06),edge(b,-1,-.06),edge(b,1,-.06),edge(a,1,-.06),pale);
-        finish(28);
-        quad(edge(a,-.86,.006),edge(b,-.86,.006),edge(b,.86,.006),edge(a,.86,.006),
-          j%4===0?theme.accent:theme.enamel);
-        finish(18);
-        for(const rim of [-1,1]) taper(edge(a,rim,0),edge(b,rim,0),.038,.037,pale);
-      }
-    }
-  }
-
-  function roofHeight(form,u,v,r) {
-    const arch=Math.sqrt(Math.max(0,1-u*u));
-    switch(form) {
-      case 'archive': return arch*(.88+.12*(1-v*v));
-      case 'sail': return .23+.20*arch+.56*u+.10*v+.30*u*u;
-      case 'facets': return .07+.77*Math.max(0,1-Math.max(Math.abs(u-.19),Math.abs(v+.20)));
-      case 'petals': return .15+.63*Math.sqrt(Math.max(0,1-r*r))+.14*Math.sin(3*u+2*v);
-      case 'terraces': return 0;
-      case 'wave': return .47-.36*Math.cos(u*2.35*Math.PI)+.23*u-.11*v;
-      case 'beacon': return .10+.45*(1-r*r);
-    }
-  }
-
-  for(const [key,spec] of Object.entries(districtPavilions)) {
-    const index=Number(key);
-    const [,x,z,accent]=places[index];
-    const theme=labThemes[index];
-    const {roof,width,depth,eave,rise,shape}=spec;
-    const y=base(x,z);
-    const sideCount=roof==='facets'?24:48,roofRows=roof==='facets'?6:9;
-    function plan(a,r,lift) {
-      const coord=value=>Math.sign(value)*Math.abs(value)**shape;
-      return [x+r*width*coord(Math.cos(a)),y+lift,z+r*depth*coord(Math.sin(a))];
-    }
-    function cover(a,r,offset=0) {
+  function buildArchive() {
+    const [,x,z,accent]=places[1];
+    const {width,depth,eave,rise,shape}=archivePavilion;
+    const y=base(x,z),sides=48;
+    const coord=value=>Math.sign(value)*Math.abs(value)**shape;
+    const plan=(a,r,h)=>[x+r*width*coord(Math.cos(a)),y+h,z+r*depth*coord(Math.sin(a))];
+    const cover=(a,r,offset=0)=>{
       const p=plan(a,r,0);
-      p[1]+=eave+rise*roofHeight(roof,(p[0]-x)/(width*1.04),(p[2]-z)/(depth*1.04),Math.min(1,r))+offset;
+      const u=(p[0]-x)/(width*1.04),v=(p[2]-z)/(depth*1.04);
+      p[1]+=eave+rise*Math.sqrt(Math.max(0,1-u*u))*(.88+.12*(1-v*v))+offset;
       return p;
-    }
-    function ring(r1,r2,y1,y2,color,material) {
+    };
+    for (const [r1,r2,h1,h2,color,material] of [
+      [1.075,1.087,-.047,.10,stone,2],[1.087,1.042,.10,.234,pale,18],
+      [1.042,.014,.234,.234,'#ac8763',18],[1.023,1.024,.150,.174,amber,17],
+    ]) {
       finish(material);
-      for(let j=0;j<sideCount;j++) {
-        const a=j*tau/sideCount,b=(j+1)*tau/sideCount;
-        quad(plan(b,r1,y1),plan(a,r1,y1),plan(a,r2,y2),plan(b,r2,y2),color);
+      for(let j=0;j<sides;j++) {
+        const a=j*tau/sides,b=(j+1)*tau/sides;
+        quad(plan(b,r1,h1),plan(a,r1,h1),plan(a,r2,h2),plan(b,r2,h2),color);
       }
     }
-    ring(1.075,1.087,-.047,.10,stone,2);
-    ring(1.087,1.042,.10,.234,pale,18);
-    ring(1.042,.014,.234,.234,'#ac8763',18);
-    ring(1.023,1.024,.150,.174,amber,17);
-    const paneColor=['#785945','#a87856','#bd9168'];
-    if (roof==='linked') linkedWorkshops(x,y,z,theme);
-    else for(let j=0;j<sideCount;j++) {
-      const a=j*tau/sideCount,b=(j+1)*tau/sideCount;
-      const middle=(a+b)/2,front=Math.sin(middle),flank=Math.abs(Math.cos(middle));
-      const apron=theme ? (roof==='facets'?.70:roof==='beacon'?.62:.54) : .302;
-      const la=plan(a,1,apron),lb=plan(b,1,apron);
-      const ua=cover(a,1,-.143),ub=cover(b,1,-.143);
-      if (front<-.55) {
-        const pa=plan(a,.954,.236),pb=plan(b,.954,.236);
-        const ra=cover(a,.954,-.227),rb=cover(b,.954,-.227);
+    const backing=['#785945','#a87856','#bd9168'];
+    for(let j=0;j<sides;j++) {
+      const a=j*tau/sides,b=(j+1)*tau/sides;
+      const la=plan(a,1,.302),lb=plan(b,1,.302),ua=cover(a,1,-.143),ub=cover(b,1,-.143);
+      if(Math.sin((a+b)/2)<-.55) {
         finish(26);
-        quad(pb,pa,ra,rb,paneColor[j%3]);
+        quad(plan(b,.954,.236),plan(a,.954,.236),cover(a,.954,-.227),cover(b,.954,-.227),backing[j%3]);
       }
-      if (theme) {
-        finish(28);
-        quad(plan(b,1,.236),plan(a,1,.236),la,lb,theme.enamel);
-        const solidBay=(roof==='facets'&&flank>.62) ||
-          (roof==='sail'&&flank>.81) || (roof==='beacon'&&j%6<2) ||
-          (roof==='wave'&&front<.2&&j%5<2);
-        if (solidBay) quad(lb,la,ua,ub,theme.enamel);
-        else glass([lb,la,ua,ub],theme.accent,false);
-      } else glass([lb,la,ua,ub],'#d3ab7d',false);
-      if (j%2===0) {
+      glass([lb,la,ua,ub],'#d3ab7d',false);
+      if(j%2===0) {
         finish(4);
-        taper(la,ua,theme&&j%6===0?.071:.029,.041,shadowBronze);
+        taper(la,ua,.029,.041,shadowBronze);
       }
       finish(18);
       quad(ua,ub,cover(b,1,.015),cover(a,1,.015),ceramic);
-      finish(theme?28:17);
-      quad(cover(a,1.006,-.121),cover(b,1.006,-.121),
-        cover(b,1.006,-.065),cover(a,1.006,-.065),theme?theme.accent:amber,false);
+      finish(17);
+      quad(cover(a,1.006,-.121),cover(b,1.006,-.121),cover(b,1.006,-.065),cover(a,1.006,-.065),amber,false);
     }
-    if (roof!=='linked' && roof!=='terraces') for(let row=0;row<roofRows;row++) for(let j=0;j<sideCount;j++) {
-      const a=j*tau/sideCount,b=(j+1)*tau/sideCount,r=row*1.048/roofRows,t=(row+1)*1.048/roofRows;
+    for(let row=0;row<9;row++) for(let j=0;j<sides;j++) {
+      const a=j*tau/sides,b=(j+1)*tau/sides,r=row*1.048/9,t=(row+1)*1.048/9;
       const face=[cover(a,r),cover(b,r),cover(b,t),cover(a,t)];
-      const across=Math.cos((a+b)/2);
-      const skylight=row>0&&row<roofRows-1&&(roof==='sail'?across<-.35:
-        roof==='facets'?j%6===2||j%6===3:roof==='wave'?Math.abs(across)<.70:
-        roof==='beacon'?j%6===3:roof==='petals'?j%8<5:j%12!==0);
-      if (skylight) glass(face,theme?.enamel||'#4d7992',true);
+      if(row>0&&row<8&&j%12!==0) glass(face,'#4d7992',true);
       else {
-        const coloured=theme&&(row<roofRows-1||roof==='sail'||roof==='wave');
-        finish(coloured?28:18);
-        quad(...face,coloured ? theme.enamel : (j+row)%4===0?ceramic:pale);
+        finish(18);
+        quad(...face,(j+row)%4===0?ceramic:pale);
       }
-      if (j%6===0 && row>0) {
-        finish(theme?18:4);
-        taper(cover(a,r,.035),cover(a,t,.035),theme ? .049 : .028,.037,theme?pale:bronze);
+      if(j%6===0&&row>0) {
+        finish(4);
+        taper(cover(a,r,.035),cover(a,t,.035),.028,.037,bronze);
       }
-      if (row===2 || row===5 || row===roofRows-1) {
-        finish(row===roofRows-1?18:4);
-        taper(cover(a,t,.024),cover(b,t,.024),row===roofRows-1?.066:.020,row===roofRows-1?.066:.020,
-          row===roofRows-1?pale:bronze);
+      if(row===2||row===5||row===8) {
+        finish(row===8?18:4);
+        taper(cover(a,t,.024),cover(b,t,.024),row===8?.066:.020,row===8?.066:.020,row===8?pale:bronze);
       }
     }
-    if (roof==='archive') {
-      vaultRib(x,z+depth*.54,y,width+.085,eave+rise-1.01,1.34,.155,true);
-      vaultRib(x,z-depth*.37,y,width+.034,eave+rise-1.01,1.34,.102,false);
-    } else if (roof==='sail') {
-      // Two leaning supports carry the higher copper wing over the entry.
-      for (const [side,top] of [[-1,2.47],[1,4.45]]) {
-        finish(18);
-        taper([x+side*1.76,y+.25,z+1.20],[x+side*2.55,y+top,z+1.53],.19,.107,pale);
-        finish(28);
-        taper([x+side*1.83,y+.34,z+1.32],[x+side*2.58,y+top,z+1.58],.042,.043,theme.accent);
-      }
-    } else if (roof==='facets') {
-      // Offset test bays interlock around a violet diagnostic lens.
-      for (const [dx,dz,span,height] of [[-.84,-.64,.89,.68],[.56,.23,1.00,.99]]) {
-        const [px,pz]=[x+dx,z+dz],level=y+2.73;
-        finish(28);
-        shell(px,pz,[[level,span],[level+.18,span*1.13],[level+height-.18,span*1.13],
-          [level+height,span],[level+height,0]],theme.enamel,8,.81);
-        finish(18);
-        shell(px,pz,[[level+height-.11,span*1.07],[level+height+.035,span],[level+height+.035,span*.79]],pale,8,.81);
-      }
-      emblem(x+.56,y+3.40,z+1.23,.54,6,theme.accent,'#31294b');
-      finish(28);
-      taper([x+.24,y+3.39,z+1.251],[x+.46,y+3.20,z+1.251],.027,.027,theme.accent);
-      taper([x+.46,y+3.20,z+1.251],[x+.88,y+3.54,z+1.251],.027,.027,theme.accent);
-    } else if (roof==='petals') {
-      tidalPetals(x,y,z,theme);
-      for (const side of [-1,1]) {
-        finish(18);
-        shell(x+side*1.91,z+.14,[[y+1.91,.55],[y+2.09,.58],[y+2.12,.52],[y+2.12,0]],pale,24,1.55);
-        for(let j=0;j<9;j++) shrub(x+side*1.91+.38*Math.cos(j*2.39),y+2.06,
-          z+.14+.62*Math.sin(j*2.39),.64,.69,j*2.39,j%4,.87);
-      }
-    } else if (roof==='terraces') {
-      for(const [outer,inner,level] of [[1.065,.81,2.07],[.849,.60,2.53],[.641,.02,2.99]]) {
-        ring(outer-.033,outer,level-.032,level+.056,pale,18);
-        ring(outer,outer,level+.056,level+.21,theme.enamel,28);
-        ring(outer,outer-.041,level+.21,level+.268,pale,18);
-        ring(outer-.041,inner,level+.268,level+.268,ceramic,18);
-        if(inner>.04) ring(inner,inner,level+.268,level+.44,theme.enamel,28);
-      }
-      const dial=y+3.59,dialZ=z+depth*.67;
-      finish(18);
-      box(x,y+3.18,dialZ-.11,.42,.44,.115,pale);
-      emblem(x,dial,dialZ,.53,36,theme.accent,'#443724');
-      finish(28);
-      for(let j=0;j<4;j++) {
-        const a=j*tau/4;
-        taper([x+.332*Math.cos(a),dial+.332*Math.sin(a),dialZ+.019],
-          [x+.390*Math.cos(a),dial+.390*Math.sin(a),dialZ+.019],.019,.019,theme.accent);
-      }
-      taper([x,dial,dialZ+.02],[x,dial+.253,dialZ+.02],.025,.022,theme.accent);
-      taper([x,dial,dialZ+.02],[x+.178,dial-.077,dialZ+.02],.025,.022,theme.accent);
-    } else if (roof==='wave') {
-      // Three roof fins carry different colour facets over the same glazed atelier.
-      for(const [dx,height,color] of [[-1.14,.67,'#de7eb3'],[.02,1.03,theme.enamel],[1.18,.79,'#a85b9a']]) {
-        const peak=[x+dx+.53,y+3.47+height,z-.52];
-        const front=[x+dx-.45,y+2.95,z+1.54],back=[x+dx-.20,y+3.06,z-1.58];
-        finish(28);
-        tri(front,peak,back,color,true);
-        finish(18);
-        taper(front,peak,.052,.042,pale);
-        taper(peak,back,.042,.047,pale);
-      }
-    }
-    if (theme) labEntrance(index,roof,x,y,z+depth*.995,theme);
-    else portal(x,y,z+depth*.995,accent,1.24);
+    vaultRib(x,z+depth*.54,y,width+.085,eave+rise-1.01,1.34,.155,true);
+    vaultRib(x,z-depth*.37,y,width+.034,eave+rise-1.01,1.34,.102,false);
+    portal(x,y,z+depth*.995,accent,1.24);
     finish(17);
     shell(x,z+.25,[[y+eave-.38,width*.62],[y+eave-.34,width*.62],[y+eave-.34,width*.54]],amber,36,.69);
     shell(x,z+.27,[[y+eave-.49,width*.32],[y+eave-.45,width*.32],[y+eave-.45,width*.26]],amber,32,.70);
@@ -664,74 +382,36 @@ function buildSkillsvilleDistricts(places, art, authoredDock, coast, authoredBui
     shell(x,z-.15,[[y+.23,.83],[y+.31,.83],[y+.31,.55],[y+.90,.62],[y+.99,.91],[y+1.07,.91],[y+1.07,0]],'#cfab80',24,.69);
     for(const side of [-1,1]) {
       for(let shelf=0;shelf<3;shelf++) box(x+side*width*.62,y+.52+shelf*.40,z-.60,.43,.065,.36,'#bb895a');
-      for(let book=0;book<5;book++) {
-        box(x+side*width*.62+(book-2)*.145,y+.59+((index+book)%3)*.40,z-.52,.050,.18+book*.021,.20,
-          [accent,'#d6ae7f','#b87662'][book%3]);
-      }
+      for(let book=0;book<5;book++) box(x+side*width*.62+(book-2)*.145,y+.59+((book+1)%3)*.40,z-.52,.050,.18+book*.021,.20,
+        [accent,'#d6ae7f','#b87662'][book%3]);
     }
-    if (roof==='beacon') {
-      const top=y+eave+.43,zCrown=z-.28;
-      finish(18);
-      shell(x,zCrown,[[top-.11,1.01],[top+.11,1.01],[top+.24,.77]],pale,12);
-      finish(28);
-      shell(x,zCrown,[[top+.20,.79],[top+1.62,.57]],theme.enamel,12);
-      finish(18);
-      shell(x,zCrown,[[top+1.55,.58],[top+1.64,.82],[top+1.77,.79],[top+1.80,.66]],pale,24);
-      for(let j=0;j<8;j++) {
-        const a=j*tau/8;
-        finish(4);
-        taper(at(x,top+1.75,zCrown,.63,a),at(x,top+2.42,zCrown,.65,a),.042,.042,bronze);
+    for(let row=0;row<4;row++) {
+      const level=y+.46+row*.45;
+      finish(26);
+      box(x,level,z-1.32,1.52,.050,.30,'#b78457');
+      for(let spine=0;spine<17;spine++) {
+        const h=.14+.145*((spine*7+row*11)%13)/13;
+        const color=['#4f807a','#a96551','#d4ad78','#667b95','#98765a'][(spine+row*2)%5];
+        box(x+(spine-8)*.162,level+.051,z-1.28,.051+(spine%3)*.012,h,.17,color);
       }
       finish(17);
-      shell(x,zCrown,[[top+1.81,.30],[top+1.91,.34],[top+2.20,.26],[top+2.26,.09]],amber,24);
-      finish(28);
-      shell(x,zCrown,[[top+2.38,.69],[top+2.47,.79],[top+2.54,.69],[top+2.81,.13],[top+2.84,0]],theme.enamel,24);
-      finish(17);
-      shell(x,zCrown,[[top+2.49,.76],[top+2.515,.74]],amber,24);
-      emblem(x,top+1.09,zCrown+.70,.38,8,theme.accent,'#592635');
-    }
-    if (index===1) {
-      for(let row=0;row<4;row++) {
-        const level=y+.46+row*.45;
-        finish(26);
-        box(x,level,z-1.32,1.52,.050,.30,'#b78457');
-        for(let spine=0;spine<17;spine++) {
-          const h=.14+.145*((spine*7+row*11)%13)/13;
-          const color=['#4f807a','#a96551','#d4ad78','#667b95','#98765a'][(spine+row*2)%5];
-          box(x+(spine-8)*.162,level+.051,z-1.28,.051+(spine%3)*.012,h,.17,color);
-        }
-        finish(17);
-        box(x,level+.004,z-1.006,1.49,.018,.014,amber);
-      }
-      for(const side of [-1,1]) {
-        finish(18);
-        shell(x+side*2.75,z-.12,[[y+.23,.80],[y+.50,.80],[y+.58,.75],[y+.58,0]],pale,22,.77);
-        for(let j=0;j<7;j++) shrub(x+side*2.75+(j%3-1)*.34,y+.56,z-.12+Math.sin(j*2.39)*.42,.63,.67,j*2.39,j%4,.83);
-      }
+      box(x,level+.004,z-1.006,1.49,.018,.014,amber);
     }
     const door=z+depth+.28;
     for(const side of [-1,1]) {
-      const px=x+side*(width*.62+.37);
-      plantedBed(px,door+.43,.64,.66,index%4);
+      finish(18);
+      shell(x+side*2.75,z-.12,[[y+.23,.80],[y+.50,.80],[y+.58,.75],[y+.58,0]],pale,22,.77);
+      for(let j=0;j<7;j++) shrub(x+side*2.75+(j%3-1)*.34,y+.56,z-.12+Math.sin(j*2.39)*.42,.63,.67,j*2.39,j%4,.83);
+      plantedBed(x+side*(width*.62+.37),door+.43,.64,.66,1);
       lantern(x+side*1.18,door+.69,base(x+side*1.18,door+.69),.74,.93);
     }
     light(x,door+.34,1.48,1.27,.79,base(x,door+.34));
     finish(18);
     const threshold=(side,dz)=>[x+side*1.24,base(x+side*1.24,door+dz)+.043,door+dz];
     quad(threshold(-1,-.07),threshold(-1,1.21),threshold(1,1.21),threshold(1,-.07),stone,false);
-    if (theme) {
-      finish(28);
-      for (const side of [-1,1]) {
-        const pin=x+side*.97;
-        const atPin=(px,pz)=>[px,base(px,pz)+.049,pz];
-        quad(atPin(pin-.071,door+.19),atPin(pin-.071,door+1.10),
-          atPin(pin+.071,door+1.10),atPin(pin+.071,door+.19),theme.accent,false);
-      }
-    }
   }
-
-  const [,signalX,signalZ]=places[2];
-  nameplate(2,signalX,authoredBuildings?3.63:2.23,signalZ+(authoredBuildings?3.86:2.57),3.74);
+  buildArchive();
+  buildLabExteriors(places,art,{lantern,plantedBed},authoredBuildings);
 
   if (!authoredDock) return;
   // Connect the stone cap and balustrade around the outer terraces.

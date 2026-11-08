@@ -12,6 +12,9 @@ section{padding:48px 0;border-bottom:1px solid #375254}.eyebrow{color:#abf3d6;le
 figure{margin:24px 0 0}iframe,img{display:block;width:100%;border:1px solid #395657;border-radius:16px}iframe{height:clamp(420px,65vh,650px);background:#1a2f37}figcaption{margin-top:8px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(235px,100%),1fr));gap:14px}.card{padding:20px;background:#1b3038;border-radius:14px}.cta{display:inline-block;background:#abf3d6;color:#15282b;padding:10px 17px;border-radius:9px;font-weight:750}footer{padding:24px 0 42px}
 .lab-card{border-top:3px solid var(--lab-accent)}.lab-theme{color:var(--lab-accent);font-size:.92rem;font-weight:700}.lab-card p:last-child{margin-bottom:0}
+.lab-identity{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+.lab-badge{width:64px;height:64px;display:grid;place-items:center;border-radius:18px;background:var(--lab-accent);color:#132a31}
+.lab-badge .lab-mark{width:42px;height:42px}.mark-download{font-size:.82rem}.lab-meaning{color:#d8e9e3;font-size:.9rem}
 </style>
 <header><strong>SKILLQUEST / DESIGN PROPOSAL</strong><nav aria-label="Proposal sections"><a href="#world">World</a><a href="#journey">Student journey</a><a href="#skills">Skills</a><a href="#teacher">Teacher dashboard</a><a href="#application">Trial application</a><a href="#resources">Resources</a></nav></header>
 <main>
@@ -37,19 +40,19 @@ figure{margin:24px 0 0}iframe,img{display:block;width:100%;border:1px solid #395
 <section id="skills">
 <p class="eyebrow">SKILLSVILLE / LEARNING DESTINATIONS</p>
 <h2>The eight Skills Labs</h2>
-<p>Each lab gives students a visual clue about the capability they will practise. Look for its shape, accent and symbol. The entrance sign and the Discovery Plaza directory give the full name.</p>
+<p>The buildings take their shape from the work students do there. Each skill has one mark, shared by its entrance plaque, the Discovery Plaza directory and the Blueprint. The SVGs can be used in print or on screen.</p>
 <div class="grid">
-<article class="card lab-card" style="--lab-accent:#70e7df"><h3>Communication Skills Lab</h3><p class="lab-theme">Signal observatory · sea-glass cyan</p><p>Explain clearly, listen for misunderstandings and check what others heard.</p></article>
-<article class="card lab-card" style="--lab-accent:#a8c8ff"><h3>Collaboration Skills Lab</h3><p class="lab-theme">Linked workshops · cobalt blue</p><p>Agree on roles, share information and support others to complete a task.</p></article>
-<article class="card lab-card" style="--lab-accent:#ffad7c"><h3>Initiative Skills Lab</h3><p class="lab-theme">Launch workshop · copper</p><p>Notice a need, decide what you can do and take responsibility for following through.</p></article>
-<article class="card lab-card" style="--lab-accent:#d3b7ff"><h3>Problem-solving Skills Lab</h3><p class="lab-theme">Systems workshop · violet</p><p>Investigate what is happening, compare options and test a solution.</p></article>
-<article class="card lab-card" style="--lab-accent:#a7eabb"><h3>Adaptability Skills Lab</h3><p class="lab-theme">Tidal conservatory · jade</p><p>Change a plan when conditions shift and learn from the result.</p></article>
-<article class="card lab-card" style="--lab-accent:#ffdf8f"><h3>Self-management Skills Lab</h3><p class="lab-theme">Planning terraces · amber</p><p>Plan time and effort, organise materials and check progress.</p></article>
-<article class="card lab-card" style="--lab-accent:#ffafe0"><h3>Creativity Skills Lab</h3><p class="lab-theme">Prism atelier · rose</p><p>Generate ideas and improve an existing approach.</p></article>
-<article class="card lab-card" style="--lab-accent:#ffa3a8"><h3>Leadership Skills Lab</h3><p class="lab-theme">Guiding beacon · garnet</p><p>Help a group agree on priorities, invite input and support action.</p></article>
+<article class="card lab-card" data-lab="2"><h3>Communication Skills Lab</h3><p class="lab-theme">Signal forum</p><p>Explain clearly, listen for misunderstandings and check what others heard.</p></article>
+<article class="card lab-card" data-lab="3"><h3>Collaboration Skills Lab</h3><p class="lab-theme">Woven commons</p><p>Agree on roles, share information and support others to complete a task.</p></article>
+<article class="card lab-card" data-lab="4"><h3>Initiative Skills Lab</h3><p class="lab-theme">Launch ramp</p><p>Notice a need, decide what you can do and take responsibility for following through.</p></article>
+<article class="card lab-card" data-lab="5"><h3>Problem-solving Skills Lab</h3><p class="lab-theme">Test foundry</p><p>Investigate what is happening, compare options and test a solution.</p></article>
+<article class="card lab-card" data-lab="6"><h3>Adaptability Skills Lab</h3><p class="lab-theme">Tidefold conservatory</p><p>Change a plan when conditions shift and learn from the result.</p></article>
+<article class="card lab-card" data-lab="7"><h3>Self-management Skills Lab</h3><p class="lab-theme">Planning terraces</p><p>Plan time and effort, organise materials and check progress.</p></article>
+<article class="card lab-card" data-lab="8"><h3>Creativity Skills Lab</h3><p class="lab-theme">Prism atelier</p><p>Generate ideas and improve an existing approach.</p></article>
+<article class="card lab-card" data-lab="9"><h3>Leadership Skills Lab</h3><p class="lab-theme">Guiding beacon</p><p>Help a group agree on priorities, invite input and support action.</p></article>
 </div>
 <p class="small">Communication is playable in the current prototype. The other seven labs are exterior previews.</p>
-<figure><img src="walkthrough/lab-exteriors.jpg" width="1440" height="624" alt="Eight views from the playable island, showing each Skills Lab and its entrance sign" loading="lazy"><figcaption>The eight Skills Lab exteriors from the playable world.</figcaption></figure>
+<figure><img src="walkthrough/lab-exteriors.jpg?v=lab-studios" width="1440" height="638" alt="Eight rebuilt Skills Labs from the playable island paired with their capability logos" loading="lazy"><figcaption>The eight Skills Lab exteriors and their marks from the playable world.</figcaption></figure>
 </section>
 <section id="teacher">
 <p class="eyebrow">DASHBOARD CONCEPT</p>
@@ -77,8 +80,8 @@ figure{margin:24px 0 0}iframe,img{display:block;width:100%;border:1px solid #395
 <p><a href="dock-comparison.html">Compare the South Dock concept with the live browser build</a></p>
 <p><strong>Playable build update.</strong> Walk from the South Dock lanterns to Discovery Plaza's bronze and mint rings. Branching stone paths lead to the Skills Lab pavilions, the coastal promenade and the planted ramp to My Portfolio. Follow the southwest path from the plaza to the twin masts of the Communication Skills Lab to try Relay Rescue.</p>
 <div class="grid">
-<figure><a href="index.html?view=overview"><img src="walkthrough/skillsville-overview.jpg" alt="Playable island overview showing the timber dock, seawall and Skills Lab rooftops against the sunset" loading="lazy"></a><figcaption>Playable build · Skillsville overview. Open the interactive island view.</figcaption></figure>
-<figure><a href="index.html"><img src="walkthrough/discovery-plaza.jpg" alt="The player approaching the bronze orbit sculpture, mint rings and planted paths in Discovery Plaza" loading="lazy"></a><figcaption>Playable build · Discovery Plaza. Choose Go to Discovery Plaza from the dock.</figcaption></figure>
+<figure><a href="index.html?view=overview"><img src="walkthrough/skillsville-overview.jpg?v=lab-studios" alt="Playable island overview showing the timber dock, seawall and Skills Lab rooftops against the sunset" loading="lazy"></a><figcaption>Playable build · Skillsville overview. Open the interactive island view.</figcaption></figure>
+<figure><a href="index.html"><img src="walkthrough/discovery-plaza.jpg?v=lab-studios" alt="The player approaching the bronze orbit sculpture, mint rings and planted paths in Discovery Plaza" loading="lazy"></a><figcaption>Playable build · Discovery Plaza. Choose Go to Discovery Plaza from the dock.</figcaption></figure>
 </div>
 <p>The exterior concepts below set the art target for Skillsville.</p>
 <figure><img src="concepts/island-overview.png" alt="Aerial view of Skillsville with coastal labs around Discovery Plaza" loading="lazy"><figcaption>Concept · Skillsville island overview</figcaption></figure>
@@ -108,4 +111,30 @@ figure{margin:24px 0 0}iframe,img{display:block;width:100%;border:1px solid #395
 </section>
 </main>
 <footer class="small">Reference for proposal structure and visual quality · <a href="https://taniab1975.github.io/career-empire-blueprint/#overview">Career Empire Blueprint</a> · <a href="https://emmanuel-ict-support.github.io/GTCEM-Career-Empire/playable-3d/">Career Empire 3D</a></footer>
+<script src="lab-exteriors.js?v=lab-studios"></script>
+<script>
+for (const card of document.querySelectorAll('.lab-card')) {
+  const index=Number(card.dataset.lab),theme=labThemes[index];
+  card.style.setProperty('--lab-accent',theme.accent);
+  const identity=document.createElement('div');
+  identity.className='lab-identity';
+  const badge=document.createElement('span');
+  badge.className='lab-badge';
+  badge.append(createLabMark(index));
+  const download=document.createElement('a');
+  download.className='mark-download';
+  download.textContent='Download SVG';
+  download.setAttribute('aria-label','Download the '+theme.name+' logo as an SVG');
+  const vector='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><title>'+theme.name+
+    '</title><path fill="#17333a" fill-rule="evenodd" d="'+theme.mark+'"/></svg>';
+  download.href='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(vector);
+  download.download=theme.name.toLowerCase()+'-mark.svg';
+  identity.append(badge,download);
+  card.prepend(identity);
+  const meaning=document.createElement('p');
+  meaning.className='lab-meaning';
+  meaning.textContent=theme.meaning;
+  card.append(meaning);
+}
+</script>
 </html>
