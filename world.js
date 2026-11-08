@@ -7,14 +7,14 @@ const arrivalLayout = typeof southDockLayout === 'object'
 const places = [
   ['Orientation Hub', ...arrivalLayout.hub, '#76e5bb', 2],
   ['My Portfolio', 0, -17, '#f1ce92', 3],
-  ['Communication Skills Lab', ...arrivalLayout.lab, '#5ff2d2', 4],
-  ['Collaboration Skills Lab', 9, 8, '#8ebcf9', 2],
-  ['Initiative Skills Lab', -15, 6, '#f1a677', 3],
-  ['Problem-solving Skills Lab', 14, 1, '#b3a1fb', 4],
-  ['Adaptability Skills Lab', -14, -8, '#75d6a0', 2],
-  ['Self-management Skills Lab', 14, -8, '#f3c882', 3],
-  ['Creativity Skills Lab', -8, -14, '#f09bbd', 3],
-  ['Leadership Skills Lab', 8, -14, '#8cd9ef', 5],
+  ['Communication Skills Lab', ...arrivalLayout.lab, labThemes[2].accent, 4],
+  ['Collaboration Skills Lab', 9, 8, labThemes[3].accent, 2],
+  ['Initiative Skills Lab', -15, 6, labThemes[4].accent, 3],
+  ['Problem-solving Skills Lab', 14, 1, labThemes[5].accent, 4],
+  ['Adaptability Skills Lab', -14, -8, labThemes[6].accent, 2],
+  ['Self-management Skills Lab', 14, -8, labThemes[7].accent, 3],
+  ['Creativity Skills Lab', -8, -14, labThemes[8].accent, 3],
+  ['Leadership Skills Lab', 8, -14, labThemes[9].accent, 5],
   ['Discovery Plaza', 0, 0, '#a6f5cf', 0],
 ];
 const byId = id => document.getElementById(id);
@@ -108,6 +108,27 @@ function button(value, action, parent = panel) {
   el.addEventListener('click', action);
   return el;
 }
+function approachCommunication() {
+  const [,x,z]=places[2];
+  movement=null;
+  angle=0;
+  Object.assign(avatar,{x,z:z+4.4,facing:-1,heading:0});
+  update();
+  byId('enter').focus();
+}
+function labDirectory() {
+  const directory=add('details','');
+  directory.className='lab-directory';
+  add('summary','Skills Lab directory',directory);
+  const list=add('ul','',directory);
+  for (const [key,theme] of Object.entries(labThemes)) {
+    const index=Number(key);
+    const row=add('li','',list);
+    const visit=button(places[index][0],index===2 ? approachCommunication : ()=>travel(index),row);
+    visit.style.setProperty('--lab-accent',theme.accent);
+    add('small',theme.landmark,visit);
+  }
+}
 function openPlace(index, focus = true) {
   if (index !== 2) studioView = 'welcome';
   insideStudio = index === 2;
@@ -120,7 +141,9 @@ function openPlace(index, focus = true) {
   byId('studio-scene').hidden = !insideStudio;
   byId('world-controls').hidden = insideStudio;
   byId('title').textContent = places[index][0];
-  byId('label').textContent = ({0:'01 / SOUTH DOCK', 1:'YOUR PRIVATE COLLECTION', 2:'03 / INSIDE THE STUDIO', 10:'02 / DISCOVERY PLAZA'})[index] || 'TRAINING DISTRICT';
+  const theme=labThemes[index];
+  byId('label').textContent = ({0:'01 / SOUTH DOCK', 1:'YOUR PRIVATE COLLECTION', 2:'03 / INSIDE THE STUDIO', 10:'02 / DISCOVERY PLAZA'})[index] || theme.landmark;
+  byId('label').style.color=theme?.accent||'';
   panel.replaceChildren();
   if (index === 0) {
     add('p', 'Welcome to Skillsville. Follow the mint trail to Discovery Plaza, then explore the Skills Labs, coastal promenade and My Portfolio terrace. A relay beacon has gone quiet near the glass-domed Communication Skills Lab.');
@@ -135,16 +158,12 @@ function openPlace(index, focus = true) {
   } else if (index === 2) {
     studio();
   } else if (index === 10) {
-    add('p', 'You’ve reached the island’s meeting place. Follow the mint trail toward South Dock and take the west fork to the lab with the twin signal masts. The path north leads to My Portfolio.');
-    button('Walk to Communication Skills Lab', () => {
-      const [, x, z] = places[2];
-      Object.assign(avatar, {x, z: z + 4.4});
-      update();
-      add('p', 'Lab entrance reached. Select Enter Communication Skills Lab to step inside.').setAttribute('role', 'status');
-      byId('enter').focus();
-    }).className = 'primary';
+    add('p', 'Each Skills Lab has its own shape, colour and entrance sign. Follow the mint trail toward South Dock to the twin masts of Communication Skills Lab. The path north leads to My Portfolio.');
+    button('Walk to Communication Skills Lab',approachCommunication).className='primary';
+    labDirectory();
   } else {
-    add('p', 'Proposed training building. Explore its exterior and visit Communication for a playable mission.');
+    add('p',theme.detail);
+    add('p','Exterior preview. Visit Communication to play Relay Rescue.');
   }
   if (focus) byId('title').focus();
 }
@@ -285,6 +304,7 @@ function reflection() {
 
 function travel(index) {
   movement = null;
+  if (labThemes[index]) angle=0;
   const [, x, z] = places[index];
   const hubPromenade = index === 0 && hasDock;
   const approach = {0: hubPromenade ? 3.55 : 3.65, 2: 4.4, 10: 2}[index] ?? 3.5;
@@ -553,8 +573,9 @@ function draw() {
     ctx.fill();
   }});
   objects.sort((a,b) => a.z-b.z).forEach(object => object.paint());
+  const atEntrance=nearby();
   for (const [index,[name,bx,bz]] of places.entries()) {
-    if (index === 2 || index === 10 || (width >= 580 && (index === 0 || index === 1))) {
+    if (index === atEntrance || index === 2 || index === 10 || (width >= 580 && (index === 0 || index === 1))) {
       label(name,bx,bz+3.8);
     }
   }

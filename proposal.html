@@ -11,6 +11,7 @@ h1,h2,h3,p{margin:0 0 .65em}h1{font-size:clamp(52px,11vw,125px);line-height:.95;
 section{padding:48px 0;border-bottom:1px solid #375254}.eyebrow{color:#abf3d6;letter-spacing:.17em;font-size:.75rem;font-weight:750}.lead{font-size:clamp(19px,3vw,26px);max-width:760px}.small,figcaption{color:#b9ceca;font-size:.93rem}
 figure{margin:24px 0 0}iframe,img{display:block;width:100%;border:1px solid #395657;border-radius:16px}iframe{height:clamp(420px,65vh,650px);background:#1a2f37}figcaption{margin-top:8px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(235px,100%),1fr));gap:14px}.card{padding:20px;background:#1b3038;border-radius:14px}.cta{display:inline-block;background:#abf3d6;color:#15282b;padding:10px 17px;border-radius:9px;font-weight:750}footer{padding:24px 0 42px}
+.lab-card{border-top:3px solid var(--lab-accent)}.lab-theme{color:var(--lab-accent);font-size:.92rem;font-weight:700}.lab-card p:last-child{margin-bottom:0}
 </style>
 <header><strong>SKILLQUEST / DESIGN PROPOSAL</strong><nav aria-label="Proposal sections"><a href="#world">World</a><a href="#journey">Student journey</a><a href="#skills">Skills</a><a href="#teacher">Teacher dashboard</a><a href="#application">Trial application</a><a href="#resources">Resources</a></nav></header>
 <main>
@@ -36,17 +37,19 @@ figure{margin:24px 0 0}iframe,img{display:block;width:100%;border:1px solid #395
 <section id="skills">
 <p class="eyebrow">SKILLSVILLE / LEARNING DESTINATIONS</p>
 <h2>The eight Skills Labs</h2>
+<p>Each lab gives students a visual clue about the capability they will practise. Look for its shape, accent and symbol. The entrance sign and the Discovery Plaza directory give the full name.</p>
 <div class="grid">
-<article class="card"><h3>Communication Skills Lab</h3><p>Explain clearly, listen for misunderstandings and check what others heard.</p></article>
-<article class="card"><h3>Collaboration Skills Lab</h3><p>Agree on roles, share information and support others to complete a task.</p></article>
-<article class="card"><h3>Initiative Skills Lab</h3><p>Notice a need, decide what you can do and take responsibility for following through.</p></article>
-<article class="card"><h3>Problem-solving Skills Lab</h3><p>Investigate what is happening, compare options and test a solution.</p></article>
-<article class="card"><h3>Adaptability Skills Lab</h3><p>Change a plan when conditions shift and learn from the result.</p></article>
-<article class="card"><h3>Self-management Skills Lab</h3><p>Plan time and effort, organise materials and check progress.</p></article>
-<article class="card"><h3>Creativity Skills Lab</h3><p>Generate ideas and improve an existing approach.</p></article>
-<article class="card"><h3>Leadership Skills Lab</h3><p>Help a group agree on priorities, invite input and support action.</p></article>
+<article class="card lab-card" style="--lab-accent:#70e7df"><h3>Communication Skills Lab</h3><p class="lab-theme">Signal observatory · sea-glass cyan</p><p>Explain clearly, listen for misunderstandings and check what others heard.</p></article>
+<article class="card lab-card" style="--lab-accent:#a8c8ff"><h3>Collaboration Skills Lab</h3><p class="lab-theme">Linked workshops · cobalt blue</p><p>Agree on roles, share information and support others to complete a task.</p></article>
+<article class="card lab-card" style="--lab-accent:#ffad7c"><h3>Initiative Skills Lab</h3><p class="lab-theme">Launch workshop · copper</p><p>Notice a need, decide what you can do and take responsibility for following through.</p></article>
+<article class="card lab-card" style="--lab-accent:#d3b7ff"><h3>Problem-solving Skills Lab</h3><p class="lab-theme">Systems workshop · violet</p><p>Investigate what is happening, compare options and test a solution.</p></article>
+<article class="card lab-card" style="--lab-accent:#a7eabb"><h3>Adaptability Skills Lab</h3><p class="lab-theme">Tidal conservatory · jade</p><p>Change a plan when conditions shift and learn from the result.</p></article>
+<article class="card lab-card" style="--lab-accent:#ffdf8f"><h3>Self-management Skills Lab</h3><p class="lab-theme">Planning terraces · amber</p><p>Plan time and effort, organise materials and check progress.</p></article>
+<article class="card lab-card" style="--lab-accent:#ffafe0"><h3>Creativity Skills Lab</h3><p class="lab-theme">Prism atelier · rose</p><p>Generate ideas and improve an existing approach.</p></article>
+<article class="card lab-card" style="--lab-accent:#ffa3a8"><h3>Leadership Skills Lab</h3><p class="lab-theme">Guiding beacon · garnet</p><p>Help a group agree on priorities, invite input and support action.</p></article>
 </div>
 <p class="small">Communication is playable in the current prototype. The other seven labs are exterior previews.</p>
+<figure><img src="walkthrough/lab-exteriors.jpg" width="1440" height="624" alt="Eight views from the playable island, showing each Skills Lab and its entrance sign" loading="lazy"><figcaption>The eight Skills Lab exteriors from the playable world.</figcaption></figure>
 </section>
 <section id="teacher">
 <p class="eyebrow">DASHBOARD CONCEPT</p>

@@ -34,7 +34,7 @@ function dockShoreEdge(x) {
 }
 const dockTrees = [
   [7.31,.10,21.92,5.80,2.22,-2.16,.65],[-12.55,.02,18.06,4.38,1.94,.34,-.27],
-  [-15.43,.01,12.72,4.67,2.11,.54,-.31],[-10.42,.02,9.41,3.71,1.63,-.54,.20],
+  [-17.97,.01,14.41,4.42,1.59,-.48,-.27],[-10.42,.02,9.41,3.71,1.63,-.54,.20],
   [4.68,.31,17.23,3.52,1.51,.31,-.17],[11.85,.06,20.21,4.74,1.84,-.24,-.29],
 ];
 const dockPalms=[[-3.65,17.41,3.00,.37],[3.75,16.40,3.19,-.28]];
@@ -170,7 +170,7 @@ function createIsland(canvas, places, assets = {}) {
     precision highp float;
     uniform vec3 eye;
     uniform float warmSuit, time, glaze, hasShadows, mapView;
-    uniform sampler2D shadowMap, stoneMap, plantMap, sunsetMap, canopyMap, basaltMap;
+    uniform sampler2D shadowMap, stoneMap, plantMap, sunsetMap, canopyMap, basaltMap, labSignMap;
     uniform vec4 loadedTextures;
     uniform float hasBasalt;
     uniform vec2 shadowStep, labCenter, hubCenter;
@@ -258,6 +258,11 @@ function createIsland(canvas, places, assets = {}) {
       return max(lab,hub);
     }
     void main() {
+      if (finish>26.5 && finish<27.5) {
+        if (!gl_FrontFacing) discard;
+        gl_FragColor = texture2D(labSignMap,color.rg);
+        return;
+      }
       if (finish>22.5 && finish<23.5) {
         float falloff=1.-smoothstep(.06,1.,length(color.rg*2.-1.));
         if (falloff<.02) discard;
@@ -531,6 +536,8 @@ function createIsland(canvas, places, assets = {}) {
       }
       if (finish>25.5 && finish<26.5) {
         surface = surface*vec3(1.20,1.03,.81)+vec3(.28,.151,.044);
+      } else if (finish>27.5 && finish<28.5) {
+        surface = mix(surface,color,.43)+vec3(.17,.14,.11)*pow(highlight,20.);
       }
       float coveZ = world.z+shoreInset(world.x);
       if (finish<7.5 && world.y<.18 && coveZ>22.1 && coveZ<25.9) {
@@ -563,7 +570,10 @@ function createIsland(canvas, places, assets = {}) {
         vec3 honey = mix(vec3(.54,.339,.193),vec3(.99,.708,.416),litPane);
         surface = mix(honey,vec3(.075,.309,.575),domeTint);
         alpha = .12+domeTint*.43+litPane*.078+streak*.045;
-        if (district) alpha += roofPane ? .16 : .063;
+        if (district) {
+          alpha += roofPane ? .16 : .063;
+          surface = mix(surface,color,roofPane ? .43 : .09);
+        }
         ${derivatives ? `
           vec3 mirror = reflect(-toEye,normal);
           float fresnel = pow(1.-clamp(dot(normal,toEye),0.,1.),4.);
@@ -581,7 +591,7 @@ function createIsland(canvas, places, assets = {}) {
   gl.useProgram(program);
   gl.enable(gl.DEPTH_TEST);
   const attributes = ['point','pigment','finishKind'].map(name => gl.getAttribLocation(program,name));
-  const uniforms = Object.fromEntries(['eye','right','up','forward','offset','aspect','heading','warmSuit','limbSwing','limbPivot','time','glaze','hasShadows','mapView','shadowMap','shadowStep','lightRight','lightUp','lightDepth','labCenter','hubCenter','stanceSide','hipPose','kneePose','anklePose','stoneMap','plantMap','sunsetMap','canopyMap','basaltMap','loadedTextures','hasBasalt'].map(name=>[name,gl.getUniformLocation(program,name)]));
+  const uniforms = Object.fromEntries(['eye','right','up','forward','offset','aspect','heading','warmSuit','limbSwing','limbPivot','time','glaze','hasShadows','mapView','shadowMap','shadowStep','lightRight','lightUp','lightDepth','labCenter','hubCenter','stanceSide','hipPose','kneePose','anklePose','stoneMap','plantMap','sunsetMap','canopyMap','basaltMap','labSignMap','loadedTextures','hasBasalt'].map(name=>[name,gl.getUniformLocation(program,name)]));
   const subtract = (a,b)=>a.map((v,i)=>v-b[i]);
   const cross = ([a,b,c],[x,y,z])=>[b*z-c*y,c*x-a*z,a*y-b*x];
   const unit = a=>a.map(v=>v/Math.hypot(...a));
@@ -1128,6 +1138,7 @@ function createIsland(canvas, places, assets = {}) {
   activeFinish = 0;
   const districtGlass=[];
   const districtLights=[];
+  const labSigns=[];
   buildSkillsvilleDistricts(places,{
     finish:value=>{activeFinish=value;},
     tri,quad,box,shell,taper,leaf,coastalTree,rockShelf,
@@ -1135,7 +1146,8 @@ function createIsland(canvas, places, assets = {}) {
     breaker:(...detail)=>breakerShelves.push(detail),
     glass:(...detail)=>districtGlass.push(detail),
     light:(...detail)=>districtLights.push(detail),
-  },authoredDock,coast);
+    sign:(...detail)=>labSigns.push(detail),
+  },authoredDock,coast,authoredBuildings);
   function mesh() {
     const buffer=gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
@@ -1143,6 +1155,15 @@ function createIsland(canvas, places, assets = {}) {
     const count=vertices.length/7;
     vertices=[];
     return {buffer,count};
+  }
+  // The face UVs select one lab from the canvas-generated sign atlas.
+  for (const [index,x,y,z,width,height] of labSigns) {
+    const slot=index-2,col=slot%2,row=Math.floor(slot/2);
+    const left=(col+.002)/2,right=(col+.998)/2;
+    const top=(row+.004)/4,bottom=(row+.996)/4;
+    const a=[x-width/2,y,z,left,bottom,0,27],b=[x+width/2,y,z,right,bottom,0,27];
+    const c=[x+width/2,y+height,z,right,top,0,27],d=[x-width/2,y+height,z,left,top,0,27];
+    vertices.push(...a,...b,...c,...a,...c,...d);
   }
   const island=mesh();
   // The pavilion panes and pools of lantern light need separate blended passes.
@@ -1474,6 +1495,15 @@ function createIsland(canvas, places, assets = {}) {
   gl.uniform1i(uniforms.sunsetMap,3);
   gl.uniform1i(uniforms.canopyMap,4);
   gl.uniform1i(uniforms.basaltMap,5);
+  const labSignTexture=gl.createTexture();
+  gl.activeTexture(gl.TEXTURE0+6);
+  gl.bindTexture(gl.TEXTURE_2D,labSignTexture);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,createLabSignAtlas(places));
+  gl.uniform1i(uniforms.labSignMap,6);
   function pilot(color) {
     shell(0,0,[[.46,.31],[1.04,.34],[1.11,.24]],color,16,.65);
     shell(0,0,[[1.1,.2],[1.23,.255],[1.49,.25],[1.56,.15],[1.58,0]],cream,18,.91);
@@ -1547,7 +1577,7 @@ function createIsland(canvas, places, assets = {}) {
     ...dockTrees.map(([x,,z,,spread])=>[x,z,spread*.79]),
     ...districtTrees.map(([x,z,,spread])=>[x,z,spread*.84]),
   ];
-  function clearCameraDistance(avatar,angle,distance,shift) {
+  function clearCameraDistance(avatar,angle,distance,shift,overWater) {
     const dx=Math.sin(angle)+shift/distance,dz=Math.cos(angle);
     for (let run=.82;run<distance;run+=.32) {
       const x=avatar.x+dx*run,z=avatar.z+dz*run;
@@ -1558,7 +1588,9 @@ function createIsland(canvas, places, assets = {}) {
         if(index===0) return Math.hypot((x-bx)/4.39,(z-bz)/3.48)<1;
         return pavilionBlocks(index,x-bx,z-bz);
       });
-      if (throughTree || throughBuilding || !insideIslandShore(x,z,coast)) return Math.max(.98,run-.38);
+      if (throughTree || throughBuilding || (!overWater && !insideIslandShore(x,z,coast))) {
+        return Math.max(.98,run-.38);
+      }
     }
     return distance;
   }
@@ -1575,17 +1607,29 @@ function createIsland(canvas, places, assets = {}) {
     gl.clearColor(0,0,0,0);
     gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
     const dockFraming = Math.max(0,Math.min(1,(avatar.z-16)/6));
-    const follow=6.46-2.71*dockFraming, shift=.63+.05*dockFraming;
-    const distance=overview || dockFraming>.89 ? follow : clearCameraDistance(avatar,angle,follow,shift);
+    const towardLab=Math.max(0,(Math.cos(angle)-.58)/.42);
+    let labFraming=0;
+    if (!overview && towardLab) {
+      for (let index=2;index<=9;index++) {
+        const [,x,z]=places[index];
+        const approach=index===2 ? 4.4 : 3.5;
+        const range=Math.hypot(avatar.x-x,avatar.z-z-approach);
+        labFraming=Math.max(labFraming,towardLab*Math.max(0,Math.min(1,(2.67-range)/2.02)));
+      }
+    }
+    const follow=6.46-2.71*dockFraming+labFraming*(.65+1.72*dockFraming);
+    const shift=.63+.05*dockFraming;
+    const distance=overview || dockFraming>.89 ? follow :
+      clearCameraDistance(avatar,angle,follow,shift,labFraming>.25);
     const cameraScale=distance/follow;
     const overviewPullback = Math.max(1,1.31/(w/h));
     const y=terraceHeight(avatar.x,avatar.z);
     const eye=overview?[4*overviewPullback,18*overviewPullback,48*overviewPullback]:
       [avatar.x+Math.sin(angle)*distance+shift*cameraScale,
-        y+2.26+(1.46-1.03*dockFraming)*cameraScale,avatar.z+Math.cos(angle)*distance];
+        y+2.26+(1.46-1.03*dockFraming+.47*labFraming)*cameraScale,avatar.z+Math.cos(angle)*distance];
     const lead=2.2*(.30+.70*cameraScale);
     const target=overview?[0,1.7,10]:[avatar.x-Math.sin(angle)*lead-.44*dockFraming,
-      y+(1.18+.19*dockFraming)*(.85+.15*cameraScale),avatar.z-Math.cos(angle)*lead];
+      y+(1.18+.19*dockFraming+.73*labFraming)*(.85+.15*cameraScale),avatar.z-Math.cos(angle)*lead];
     const forward=unit(subtract(target,eye));
     const right=unit(cross(forward,[0,1,0]));
     const up=cross(right,forward);
@@ -1599,6 +1643,8 @@ function createIsland(canvas, places, assets = {}) {
       gl.activeTexture(gl.TEXTURE0+material.unit);
       gl.bindTexture(gl.TEXTURE_2D,material.texture);
     }
+    gl.activeTexture(gl.TEXTURE0+6);
+    gl.bindTexture(gl.TEXTURE_2D,labSignTexture);
     gl.uniform4f(uniforms.loadedTextures,...materials.slice(0,4).map(material=>material.ready ? 1 : 0));
     gl.uniform1f(uniforms.hasBasalt,materials[4].ready ? 1 : 0);
     render(island,[0,0,0]);
