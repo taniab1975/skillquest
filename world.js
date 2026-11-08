@@ -54,6 +54,7 @@ camera.onclick = () => {
 };
 const panel = byId('panel');
 const hasDock = Boolean(island && dockAssets.southDockVertices?.length);
+const coastline = island ? skillsvilleCoast(hasDock) : null;
 const avatar = { x: 0, z: hasDock ? 29 : 19, facing: -1, color: '#a6f5cf' };
 const fields = ['Situation', 'Task', 'Action', 'Result'];
 let data = { earned: false, entries: [] };
@@ -122,7 +123,7 @@ function openPlace(index, focus = true) {
   byId('label').textContent = ({0:'01 / SOUTH DOCK', 1:'YOUR PRIVATE COLLECTION', 2:'03 / INSIDE THE STUDIO', 10:'02 / DISCOVERY PLAZA'})[index] || 'TRAINING DISTRICT';
   panel.replaceChildren();
   if (index === 0) {
-    add('p', 'Welcome to Skillsville. A relay beacon has gone quiet. Follow the mint lights north from the landing dock to Discovery Plaza. Look west for the glass-domed Communication Skills Lab.');
+    add('p', 'Welcome to Skillsville. Follow the mint trail to Discovery Plaza, then explore the Skills Labs, coastal promenade and My Portfolio terrace. A relay beacon has gone quiet near the glass-domed Communication Skills Lab.');
     const row = add('div', '');
     row.className = 'row';
     button('Mint flight suit', () => { avatar.color = '#a6f5cf'; draw(); }, row);
@@ -134,7 +135,7 @@ function openPlace(index, focus = true) {
   } else if (index === 2) {
     studio();
   } else if (index === 10) {
-    add('p', 'You’ve reached the island’s meeting place. The glowing rings mark the centre. Take the southwest path to the studio with the twin signal masts.');
+    add('p', 'You’ve reached the island’s meeting place. Follow the mint trail toward South Dock and take the west fork to the lab with the twin signal masts. The path north leads to My Portfolio.');
     button('Walk to Communication Skills Lab', () => {
       const [, x, z] = places[2];
       Object.assign(avatar, {x, z: z + 4.4});
@@ -293,16 +294,16 @@ function travel(index) {
 }
 function walk(dx, dz) {
   const x = avatar.x + dx, z = avatar.z + dz;
-  const islandLimit = hasDock ? Math.min(x>=-13.5 && x<=11 ? 22.35 : 21,dockShoreEdge(x)-.35) : 21;
-  const onIsland = Math.abs(x)<=18 && z>=-21 && z<=islandLimit;
+  const onIsland = coastline ? insideIslandShore(x,z,coastline) : Math.abs(x)<=18 && z>=-21 && z<=21;
   const onDock = hasDock && z>21 && z<=33 && Math.abs(x)<=2.28*dockBridgeScale(z)-.27;
   if (!onIsland && !onDock) return;
   if (hasDock && isDockTree(x,z)) return;
+  if (island && districtGardenBlocks(x,z)) return;
   if (places.some(([, bx, bz,, levels], index) => {
     if (!levels) return false;
     if (index === 2) return Math.hypot((x-bx)/5.05,(z-bz)/3.9) < 1;
     if (index === 0) return Math.hypot((x-bx)/4.48,(z-bz)/3.55) < 1;
-    return Math.abs(x-bx)<2.5 && Math.abs(z-bz)<2.5;
+    return island ? pavilionBlocks(index,x-bx,z-bz) : Math.abs(x-bx)<2.5 && Math.abs(z-bz)<2.5;
   })) return;
   const now = performance.now();
   const previous = movement && motionEnabled() ? sampleStep(now) : avatar;
@@ -366,7 +367,8 @@ function draw() {
   if (island) {
     cancelAnimationFrame(animationFrame);
     const now = performance.now();
-    const animateWater = !insideStudio && !overview && avatar.z>18 && motionEnabled() && !document.hidden;
+    const nearWater=avatar.z>13 || avatar.z<-14 || Math.abs(avatar.x)>12;
+    const animateWater = !insideStudio && !overview && nearWater && motionEnabled() && !document.hidden;
     const time = animateWater ? (now%120000)/1000 : 0;
     if (movement && motionEnabled() && !insideStudio) {
       const sample = sampleStep(now);

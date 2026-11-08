@@ -43,6 +43,26 @@ function isDockTree(x,z) {
     || dockPalms.some(([px,pz])=>Math.hypot(x-px,z-pz)<.35);
 }
 
+function skillsvilleCoast(authoredDock) {
+  const bank=authoredDock ? Array.from({length:35},(_,i)=>[17-i,dockShoreEdge(17-i)]) :
+    [[17,22],[7,23],[-15,23]];
+  return [[-17,-22],[-10,-23.0],[-2,-23.5],[7,-23.37],[16,-22],[19,-17],
+    [20.43,-9.62],[21.17,-1.46],[20.84,6.84],[20,16],...bank,
+    [-20,16],[-20.55,8.29],[-21.06,.62],[-20.70,-7.35],[-20,-14]];
+}
+
+function insideIslandShore(x,z,coast) {
+  let inside=false;
+  for (let i=0;i<coast.length;i++) {
+    const [ax,az]=coast[i],[bx,bz]=coast[(i+1)%coast.length];
+    if ((az>z)!==(bz>z) && x<ax+(bx-ax)*(z-az)/(bz-az)) inside=!inside;
+    const dx=bx-ax,dz=bz-az;
+    const t=Math.max(0,Math.min(1,((x-ax)*dx+(z-az)*dz)/(dx*dx+dz*dz)));
+    if (Math.hypot(x-ax-t*dx,z-az-t*dz)<.51) return false;
+  }
+  return inside;
+}
+
 // Meshes use metres, Y up, with north along negative Z.
 function createIsland(canvas, places, assets = {}) {
   const authoredDock = Boolean(assets.southDockVertices?.length);
@@ -71,8 +91,8 @@ function createIsland(canvas, places, assets = {}) {
   const lightProjection = `
     uniform vec3 lightRight, lightUp, lightDepth;
     vec3 inLight(vec3 p) {
-      vec3 local = p-vec3(0.,.5,17.);
-      return vec3(dot(local,lightRight)/22.,dot(local,lightUp)/14.,dot(local,lightDepth)/26.);
+      vec3 local = p-vec3(0.,.5,6.);
+      return vec3(dot(local,lightRight)/35.,dot(local,lightUp)/23.,dot(local,lightDepth)/37.);
     }
   `;
   const breakerMotion = `
@@ -143,13 +163,13 @@ function createIsland(canvas, places, assets = {}) {
       finish = finishKind;
       world = vertex + offset;
       shadowPosition = inLight(world)*.5+.5;
-      gl_Position = vec4(dot(p,right)*1.65/aspect, dot(p,up)*1.65, depth*1.002-.32, depth);
+      gl_Position = vec4(dot(p,right)*1.65/aspect, dot(p,up)*1.65, depth*1.00055-.32, depth);
     }
   `, `
     ${derivatives ? '#extension GL_OES_standard_derivatives : enable' : ''}
     precision highp float;
     uniform vec3 eye;
-    uniform float warmSuit, time, glaze, hasShadows;
+    uniform float warmSuit, time, glaze, hasShadows, mapView;
     uniform sampler2D shadowMap, stoneMap, plantMap, sunsetMap, canopyMap, basaltMap;
     uniform vec4 loadedTextures;
     uniform float hasBasalt;
@@ -167,7 +187,7 @@ function createIsland(canvas, places, assets = {}) {
       return step(shadowPosition.z-.00105,depthAt);
     }
     float sunlight() {
-      if (hasShadows<.5 || world.z<6. || world.y<-.3 ||
+      if (hasShadows<.5 || world.y<-.3 ||
           any(lessThan(shadowPosition,vec3(.002))) || any(greaterThan(shadowPosition,vec3(.998)))) return 1.;
       vec2 tap=shadowStep*1.45;
       return .4*litAt(vec2(0.))+.15*(litAt(vec2(tap.x,0.))+litAt(vec2(-tap.x,0.))
@@ -238,6 +258,13 @@ function createIsland(canvas, places, assets = {}) {
       return max(lab,hub);
     }
     void main() {
+      if (finish>22.5 && finish<23.5) {
+        float falloff=1.-smoothstep(.06,1.,length(color.rg*2.-1.));
+        if (falloff<.02) discard;
+        float variation=.54+.46*textureNoise(world*6.4);
+        gl_FragColor=vec4(1.,.66,.33,falloff*falloff*color.b*variation*.41);
+        return;
+      }
       if (finish>18.5 && finish<19.5) {
         vec3 surge=breakerAt(color,time);
         float turbulence=textureNoise(vec3(world.xz*10.9,time*.68+color.g*5.));
@@ -339,7 +366,8 @@ function createIsland(canvas, places, assets = {}) {
         float fineSoil=textureNoise(world*7.8);
         float slope=max(0.,normal.y);
         float patch=textureNoise(world*.57)*.65+textureNoise(world*2.1)*.24;
-        float grass=smoothstep(.31,.65,patch+slope*.30+clamp(world.y*.019,0.,.25));
+        float grass=smoothstep(.31,.65,patch+slope*.30+clamp(world.y*.019,0.,.25))
+          *smoothstep(.18,.65,slope);
         float canopyShadow=textureNoise(world*1.09+vec3(.17,3.6,.20));
         vec3 scrub=mix(vec3(.143,.236,.112),vec3(.407,.487,.233),fineSoil*.46+canopyShadow*.54);
         surface=mix(surface*(.82+fineSoil*.26),scrub,grass*.94);
@@ -347,6 +375,25 @@ function createIsland(canvas, places, assets = {}) {
         float reflectedLight=.5+.5*normal.y;
         surface *= .94+textureNoise(world*9.2)*.13;
         surface += vec3(.14,.079,.041)*pow(highlight,13.)+vec3(.075,.048,.027)*reflectedLight;
+      } else if (finish>21.5 && finish<22.5) {
+        float row=floor(world.z/.57);
+        vec2 local=vec2(world.x+mod(row,2.)*.40,world.z);
+        vec2 seam=abs(fract(local/vec2(.80,.57))-.5)*vec2(.80,.57);
+        float joint=smoothstep(.006,.023,min(seam.x,seam.y));
+        float variation=textureNoise(world*9.2)*.10+.07*sin(row*13.1+floor(local.x/.8)*17.3);
+        surface *= mix(.78,.94+variation,joint);
+        surface += vec3(.21,.135,.089)*pow(highlight,23.);
+      } else if (finish>23.5 && finish<24.5) {
+        vec3 mirror=reflect(-toEye,normal);
+        float glint=sin(world.x*19.+world.z*16.2+sin(world.z*8.-time*1.8));
+        surface=mix(surface,reflectedSky(mirror,vec3(.33,.49,.48)),.27+.18*glint);
+      } else if (finish>24.5 && finish<25.5) {
+        vec3 p=world-vec3(0.,2.95,-.53);
+        float longitude=atan(p.z,p.x+.00001)*6.37;
+        float latitude=asin(clamp(p.y/.49,-1.,1.))*7.;
+        float gridLine=1.-smoothstep(.045,.17,min(abs(fract(longitude)-.5),abs(fract(latitude)-.5)));
+        float rim=pow(1.-max(0.,dot(normal,toEye)),2.);
+        surface=mix(vec3(.20,.55,.50),vec3(.78,1.,.90),rim*.57+gridLine*.30+highlight*.22);
       }
       if (finish<.5 && world.y>-.014 && world.y<.017 && world.z>8. && color.g>color.r*1.20) {
         float turf=textureNoise(world*5.7)*.66+textureNoise(world*28.)*.34;
@@ -396,9 +443,14 @@ function createIsland(canvas, places, assets = {}) {
         float westCove = 1.-smoothstep(-4.7,-1.7,world.x);
         float shallowReach = mix(8.0,12.8,westCove);
         float coveEntry = smoothstep(-.85,.25,shoreRun);
-        float shallow = (1.-smoothstep(1.4,shallowReach,shoreRun))*coveEntry*smoothstep(.72,3.8,abs(world.x))*nearBank;
+        float outside=max(abs(world.x)-19.35,-world.z-21.20);
+        float perimeter=smoothstep(-.60,.40,outside)*(1.-smoothstep(1.32,5.0,outside))
+          *(1.-smoothstep(14.0,20.0,world.z));
+        float shallow = max(perimeter*.83,(1.-smoothstep(1.4,shallowReach,shoreRun))*coveEntry
+          *smoothstep(.72,3.8,abs(world.x))*nearBank);
         vec3 deep = mix(vec3(.028,.16,.236),vec3(.045,.405,.417),shallow);
-        surface = mix(deep,mix(vec3(.13,.46,.48),vec3(.24,.65,.586),shallow),smoothstep(-.63,.93,ripple)*.63);
+        surface = mix(deep,mix(vec3(.13,.46,.48),vec3(.24,.65,.586),shallow),
+          smoothstep(-.63,.93,ripple)*(.30+.33*waveDetail));
         if (shallow>.025 && depth<27.) {
           vec3 refraction = refract(ray,waveNormal,.75);
           vec2 bed = world.xz + refraction.xz*mix(.55,2.95,1.-shallow)/max(.19,-refraction.y);
@@ -417,6 +469,8 @@ function createIsland(canvas, places, assets = {}) {
         float breakUp = sin(world.x*13.1+world.z*4.) + sin(world.x*6.4-world.z*6.4);
         float foam = smoothstep(.77,.99,sin(band))*smoothstep(.07,.97,breakUp)*(.26+stipple*.74);
         foam *= (1.-smoothstep(.47,2.7,shoreRun))*coveEntry*smoothstep(2.45,2.78,abs(world.x))*nearBank;
+        float outsideBreak=smoothstep(.78,.998,sin(outside*10.4+turbulence*5.2+time*1.32));
+        foam=max(foam,outsideBreak*perimeter*smoothstep(.37,.79,stipple)*.51);
         surface = mix(surface,vec3(.87,.966,.947),foam*.84);
       } else if (finish>7.5 && finish<8.5) {
         float dissolve = sin(world.x*24.7+world.z*12.6-time*2.4)*.46 + sin(world.z*39.+world.x*8.)*.29
@@ -424,7 +478,7 @@ function createIsland(canvas, places, assets = {}) {
         if (dissolve < -.20) discard;
         surface = mix(vec3(.17,.52,.54),mix(surface,vec3(.88,.97,.95),.48),smoothstep(-.20,.54,dissolve));
       }
-      if (world.z>6. && world.y>-.3) {
+      if (world.y>-.3) {
         float lit = sunlight();
         vec3 bounce = (labGlass || hubGlass) ? vec3(.75,.73,.75) : vec3(.60,.65,.76);
         surface *= mix(bounce,vec3(1.08,1.01,.91),lit);
@@ -475,6 +529,9 @@ function createIsland(canvas, places, assets = {}) {
           surface *= mix(.72,1.+paver*.065,smoothstep(.008,.026,seam));
         }
       }
+      if (finish>25.5 && finish<26.5) {
+        surface = surface*vec3(1.20,1.03,.81)+vec3(.28,.151,.044);
+      }
       float coveZ = world.z+shoreInset(world.x);
       if (finish<7.5 && world.y<.18 && coveZ>22.1 && coveZ<25.9) {
         float lampX = abs(world.x)<7.65 ? 5.94 : 9.45;
@@ -485,7 +542,7 @@ function createIsland(canvas, places, assets = {}) {
         surface = mix(surface,vec3(1.,.66,.26),.76);
         surface += vec3(.10,.056,.024)*pow(1.-abs(normal.y),2.);
       } else if (finish>8.5 && finish<9.5) {
-        surface = mix(surface,vec3(.28,.89,.69),.53);
+        surface = mix(surface,vec3(.42,.96,.77),.62);
       } else if (finish>16.5 && finish<17.5) {
         surface = mix(vec3(1.,.624,.24),vec3(1.,.925,.70),.72+.19*abs(normal.y));
       }
@@ -499,11 +556,14 @@ function createIsland(canvas, places, assets = {}) {
       if (glaze>.5) {
         if (!gl_FrontFacing) discard;
         float streak = pow(max(0.,cos(world.x*.71+world.z*.42-eye.x*.21)),22.);
-        float domeTint = labGlass ? smoothstep(2.37,3.52,world.y) : 0.;
-        float litPane = 1.-smoothstep(labGlass?1.70:2.45,labGlass?3.12:4.31,world.y);
+        bool district = glaze>1.5;
+        bool roofPane = district && finish<20.5;
+        float domeTint = district ? (roofPane ? .83 : .08) : (labGlass ? smoothstep(2.37,3.52,world.y) : 0.);
+        float litPane = district ? (roofPane ? .17 : .79) : 1.-smoothstep(labGlass?1.70:2.45,labGlass?3.12:4.31,world.y);
         vec3 honey = mix(vec3(.54,.339,.193),vec3(.99,.708,.416),litPane);
         surface = mix(honey,vec3(.075,.309,.575),domeTint);
         alpha = .12+domeTint*.43+litPane*.078+streak*.045;
+        if (district) alpha += roofPane ? .16 : .063;
         ${derivatives ? `
           vec3 mirror = reflect(-toEye,normal);
           float fresnel = pow(1.-clamp(dot(normal,toEye),0.,1.),4.);
@@ -515,13 +575,13 @@ function createIsland(canvas, places, assets = {}) {
           alpha = min(.78,alpha+fresnel*.22);
         ` : ''}
       }
-      gl_FragColor = vec4(mix(surface,vec3(.76,.61,.64),smoothstep(23.,112.,depth)*.65),alpha);
+      gl_FragColor = vec4(mix(surface,vec3(.76,.61,.64),smoothstep(23.,112.,depth*mix(1.,.56,mapView))*.65),alpha);
     }
   `);
   gl.useProgram(program);
   gl.enable(gl.DEPTH_TEST);
   const attributes = ['point','pigment','finishKind'].map(name => gl.getAttribLocation(program,name));
-  const uniforms = Object.fromEntries(['eye','right','up','forward','offset','aspect','heading','warmSuit','limbSwing','limbPivot','time','glaze','hasShadows','shadowMap','shadowStep','lightRight','lightUp','lightDepth','labCenter','hubCenter','stanceSide','hipPose','kneePose','anklePose','stoneMap','plantMap','sunsetMap','canopyMap','basaltMap','loadedTextures','hasBasalt'].map(name=>[name,gl.getUniformLocation(program,name)]));
+  const uniforms = Object.fromEntries(['eye','right','up','forward','offset','aspect','heading','warmSuit','limbSwing','limbPivot','time','glaze','hasShadows','mapView','shadowMap','shadowStep','lightRight','lightUp','lightDepth','labCenter','hubCenter','stanceSide','hipPose','kneePose','anklePose','stoneMap','plantMap','sunsetMap','canopyMap','basaltMap','loadedTextures','hasBasalt'].map(name=>[name,gl.getUniformLocation(program,name)]));
   const subtract = (a,b)=>a.map((v,i)=>v-b[i]);
   const cross = ([a,b,c],[x,y,z])=>[b*z-c*y,c*x-a*z,a*y-b*x];
   const unit = a=>a.map(v=>v/Math.hypot(...a));
@@ -575,36 +635,29 @@ function createIsland(canvas, places, assets = {}) {
   function seaPlane(left,right,north,south) {
     quad([left,-2.5,north],[left,-2.5,south],[right,-2.5,south],[right,-2.5,north],'#478c9b',false);
   }
-  seaPlane(-120,120,-120,20);
-  seaPlane(-120,120,39,120);
-  seaPlane(-120,-15,20,39);
-  seaPlane(15,120,20,39);
+  seaPlane(-370,370,-370,20);
+  seaPlane(-370,370,39,370);
+  seaPlane(-370,-15,20,39);
+  seaPlane(15,370,20,39);
   for(let j=0;j<48;j++) for(let i=0;i<76;i++) {
     seaPlane(-15+i*30/76,-15+(i+1)*30/76,20+j*19/48,20+(j+1)*19/48);
   }
   activeFinish = 0;
-  const dockBank = Array.from({length:35},(_,i)=>[17-i,dockShoreEdge(17-i)]);
-  const coast=[[-17,-22],[16,-22],[19,-17],[20,16],
-    ...(authoredDock ? dockBank : [[17,22],[7,23],[-15,23]]),[-20,16],[-20,-14]];
+  const coast=skillsvilleCoast(authoredDock);
   coast.forEach(([x,z],i)=>{
     const [xx,zz]=coast[(i+1)%coast.length];
+    activeFinish = authoredDock && Math.min(z,zz)<15 ? 16 : 0;
     tri([0,0,0],[xx,0,zz],[x,0,z],i%2?'#527758':'#567e5e',true);
-    const onDockBank = authoredDock && z>=16 && zz>=16;
-    activeFinish = onDockBank ? 12 : 0;
+    activeFinish = authoredDock ? 12 : 0;
     quad([x,-3.5,z],[xx,-3.5,zz],[xx,0,zz],[x,0,z],'#697875');
     activeFinish = 0;
+    if (authoredDock) return;
     const count=Math.ceil(Math.hypot(xx-x,zz-z)*2);
     for(let j=0;j<count;j++){
       const a=j/count, px=x+(xx-x)*a,pz=z+(zz-z)*a;
-      if (onDockBank) continue;
       for(let row=0;row<4;row++) box(px+(row%2)*.16,-.55-row*.73,pz,.26,.55,.28,['#a5a398','#8c9085','#777f77'][((j+row)%3)]);
     }
   });
-  // Offshore stacks frame the horizon without adding walkable land.
-  for(const [x,z,r,h] of [[-30,-31,5,5],[-37,-27,3,3.5],[33,-36,8,7],[44,-43,10,9],[25,-41,4,4]]) {
-    shell(x,z,[[-3.5,r*1.2],[-1,r],[h*.58,r*.79],[h,r*.49],[h,0]],['#617c78','#6d8581','#526d6f'],9,.72);
-    shell(x,z,[[h-.19,r*.53],[h+.08,r*.48],[h+.13,0]],'#66866e',9,.72);
-  }
   if (authoredDock) {
     for (const side of [-1,1]) {
       for (let i=0;i<16;i++) {
@@ -635,108 +688,22 @@ function createIsland(canvas, places, assets = {}) {
       box(x,.46,22.75,.038,.04,2.25,'#c4a582');
     }
   }
-  strip(0,-17,0,22,.025,2.0,'#c8c6a9');
-  for(let z=-16.5;z<22;z+=.68) {
-    strip(-1.98,z,1.98,z,.029,.012,'#a7aa95');
-    const seam = Math.round(z/.68)%2 ? -.62 : .62;
-    strip(seam,z,seam,z+.68,.029,.012,'#a7aa95');
-  }
-  for(const x of [-1.8,1.8]) strip(x,3,x,22,.036,.042,teal);
-  for(const [,x,z,,levels] of places) if(levels && x) {
-    strip(0,z+3.5,x,z+3.5,.026,.88,'#c8c6a9');
-    if(x===places[2][1]) for(const offset of [-.77,.77]) strip(0,z+3.5+offset,x,z+3.5+offset,.04,.045,teal);
-  }
-  shell(0,0,[[0,4.9],[.15,4.9],[.15,0]],'#dbccae');
-  shell(0,-1.5,[[.15,1.18],[.48,1.05],[.48,0]],slate);
-  function orbit(x,y,z,r,tilt,color) {
-    const at=(i,rad)=>[x+Math.cos(i)*rad,y+Math.sin(i)*rad*Math.cos(tilt),z+Math.sin(i)*rad*Math.sin(tilt)];
-    for(let j=0;j<64;j++){
-      const a=j*Math.PI/32,b=(j+1)*Math.PI/32;
-      quad(at(a,r),at(b,r),at(b,r-.10),at(a,r-.10),color,false);
+  if (!authoredBuildings) {
+    const [,hx,hz]=places[0], [,lx,lz]=places[2];
+    strip(0,hz+3.1,hx,hz+3.1,.030,1.04,'#cab195');
+    strip(0,lz+3.5,lx,lz+3.5,.030,1.04,'#cab195');
+    shell(hx,hz,[[.02,2.53],[.25,2.53],[.25,0]],cream,32,.83);
+    shell(hx,hz,[[.25,2.40],[1.91,2.40]],glass,32,.83);
+    shell(hx,hz,[[1.91,2.66],[2.26,2.51],[2.60,1.55],[2.60,0]],cream,32,.83);
+    shell(lx,lz,[[.02,2.66],[.23,2.66],[.23,0]],cream);
+    shell(lx,lz,[[.23,2.48],[1.62,2.48],[1.88,2.65]],cream);
+    shell(lx,lz,[[1.88,2.43],[2.45,2.22],[2.98,1.77],[3.38,1.02],[3.52,0]],glass,36);
+    for(const dx of [-2.04,2.04]) {
+      box(lx+dx,1.75,lz,.09,2.82,.09,cream);
+      box(lx+dx,4.54,lz,.15,.24,.15,teal);
     }
-  }
-  orbit(0,2.1,-1.5,1.55,.62,teal);
-  orbit(0,2.1,-1.5,1.33,-.92,'#e8ac62');
-  shell(0,-1.5,[[1.5,0],[1.72,.43],[2.25,.48],[2.62,0]],'#5dc2be',12);
-  places.forEach(([,x,z,accent,levels],index)=>{
-    if(!levels || (authoredBuildings && (index===0 || index===2))) return;
-    shell(x+1,z-.65,[[.009,2.87],[.009,0]],'#3e614a',24,.83);
-    shell(x,z,[[0,2.66],[.22,2.66],[.22,0]],'#aab0a1');
-    if(index===2 || index===6) {
-      shell(x,z,[[.22,2.48],[1.62,2.48],[1.88,2.65]],cream);
-      shell(x,z,[[1.88,2.43],[2.45,2.22],[2.98,1.77],[3.38,1.02],[3.52,0]],index===2?['#27516f','#3e7795','#2f5b85','#497b98']:glass,36);
-      if(index===2) {
-        const ribs=[[1.87,2.46],[2.45,2.24],[2.98,1.79],[3.38,1.04],[3.54,.03]];
-        for(let i=0;i<12;i++) {
-          const theta=i*Math.PI/6;
-          const point=([y,r], side)=>[x+Math.cos(theta+side)*r,y,z+Math.sin(theta+side)*r];
-          for(let j=1;j<ribs.length;j++) {
-            quad(point(ribs[j-1],-.018),point(ribs[j],-.018),point(ribs[j],.018),point(ribs[j-1],.018),cream);
-          }
-        }
-        shell(x,z,[[1.66,2.57],[1.71,2.62]],'#edc07b');
-        for (const [y,r] of [[2.45,2.245],[2.98,1.80],[3.38,1.055]]) {
-          shell(x,z,[[y-.025,r+.015],[y+.025,r]],'#b9ab91',36);
-        }
-        shell(x,z,[[1.88,2.45],[1.94,2.46]],'#dfa765',36);
-      }
-      for(const dx of index===2?[-2.04,2.04]:[]) {
-        box(x+dx,1.75,z,.09,2.82,.09,cream);
-        box(x+dx,4.54,z,.15,.24,.15,teal);
-      }
-    } else if([0,1,3,9].includes(index)) {
-      shell(x,z,[[.22,2.38],[1.9,2.38]],glass,32,.83);
-      const tall=index===9?2.5:index===1?1.05:.35;
-      shell(x,z,[[1.9,2.65],[2.25,2.55],[2.25,1.64],[2.25+tall,1.55],[2.25+tall,0]],cream,32,.83);
-      shell(x,z,[[2.15,2.6],[2.23,2.58]],accent,32,.83);
-    } else {
-      box(x,.22,z,2.3,1.57,1.86,cream);
-      box(x+.27,1.79,z,1.72,.88+levels*.15,1.42,glass[index%4]);
-      box(x+.27,2.67+levels*.15,z,1.82,.18,1.53,accent);
-    }
-    // Roof equipment and terraces give each location a recognisable silhouette.
-    if(index===4) {
-      for(const dx of [-1.45,-.65,.15, .95]) box(x+dx,3.3,z,.21,.36,.68,'#395f72');
-    } else if(index===5) {
-      shell(x+.8,z,[[3.42,.74],[3.63,.74],[4.16,.25],[4.16,0]],'#9ad9dd',12);
-      box(x-.8,3.42,z,.08,1.18,.08,accent);
-    } else if(index===7) {
-      for(const dz of [-.91,.12,.92]) box(x+.3,3.3,z+dz,1.35,.14,.28,'#637f5e');
-    } else if(index===8) {
-      for(const [dx,h] of [[-1.25,.39],[0,.79],[1.2,.48]]) box(x+dx,3.3,z,.28,h,.52,accent);
-    } else if(index===9) {
-      box(x,4.75,z,.08,1.3,.08,cream);
-      box(x,6,z,.22,.17,.22,accent);
-    }
-    const round=[0,1,2,3,6,9].includes(index);
-    const doorZ=z+(index===2||index===6?2.46:round?1.96:1.86);
-    box(x,.23,doorZ,.67,1.24,.09,slate);
-    box(x,1.44,doorZ+.05,.75,.085,.1,accent);
-    if(index===2) {
-      box(x,1.64,doorZ+.48,1.23,.19,.63,cream);
-      for(const dx of [-1.08,1.08]) box(x+dx,.22,doorZ+.87,.08,1.44,.08,slate);
-      box(x,1.62,doorZ+1.12,1.22,.07,.03,teal);
-      strip(x,doorZ+.17,x,doorZ+1.34,.04,.65,'#aabbb0');
-    }
-    for(const dx of [-1,1]) box(x+dx,.55,doorZ-.05,.24,.55,.07,'#c9eff0');
-  });
-  const arrivalTrees = authoredDock ? [] : [[-16,13],[-12,19],[12,19]];
-  for(const [x,z] of [[-17,-17],[17,-17],[-17,-10],[17,-4],...arrivalTrees,[16,13],[-6,9],[5,7],[-5,-6],[5,-6],[9,-4],[-12,-8],[15,17]]) {
-    shell(x+.9,z-.5,[[.008,1.22],[.008,0]],'#40634b',16,.56);
-    shell(x,z,[[0,.75],[.22,.75],[.22,0]],'#b5ac92',12);
-    box(x,.22,z,.11,1.38,.11,'#80674f');
-    for (const [dx,dz,height] of [[0,0,0],[-.37,.08,-.19],[.36,-.24,.17]]) {
-      shell(x+dx,z+dz,[[1.05+height,0],[1.26+height,.44],[1.74+height,.66],[2.24+height,.43],[2.45+height,0]],['#4f8d63','#63976a','#609e70'],12);
-    }
-  }
-  for(const [x,z] of [[-3.08,16],[3.08,16],[-3.08,11],[3.08,11],[-3.08,6],[3.08,6],[-6.4,2.4],[-6.4,-1.32]]) {
-    box(x,.01,z,.48,.23,.87,'#bfaf92');
-    box(x,.239,z,.42,.014,.8,'#586852');
-    for(let i=0;i<11;i++) {
-      const dx=Math.sin(i*13.2)*.39,dz=(i-5)*.14;
-      const height=.36+(i%4)*.07;
-      shell(x+dx,z+dz,[[.25,.06],[height,.105],[height+.09,0]],i%5===0?'#e6bfa1':'#749e68',5);
-    }
+    box(hx,.24,hz+1.96,.67,1.25,.09,slate);
+    box(lx,.24,lz+2.46,.67,1.25,.09,slate);
   }
   // The beacon sits on the raised west ledge visible from South Dock.
   shell(-30.82,-.32,[[6.69,.83],[6.93,.83],[6.93,.64],[9.53,.45]],cream,20);
@@ -837,7 +804,7 @@ function createIsland(canvas, places, assets = {}) {
   }
   function taper(start,end,radius,tip,color) {
     const axis=unit(subtract(end,start));
-    const tangent=unit(cross(axis,[0,0,1]));
+    const tangent=unit(cross(axis,Math.abs(axis[2])>.9 ? [1,0,0] : [0,0,1]));
     const normal=cross(axis,tangent);
     const ring=(p,r,j)=>p.map((v,i)=>v+r*(tangent[i]*Math.cos(j*Math.PI/4)+normal[i]*Math.sin(j*Math.PI/4)));
     for(let j=0;j<8;j++) quad(ring(start,radius,j),ring(start,radius,j+1),ring(end,tip,j+1),ring(end,tip,j),color);
@@ -1044,9 +1011,9 @@ function createIsland(canvas, places, assets = {}) {
     [-20.68,-2.50,14.95,2.51,3.12,3.40,-.16],[-21.21,-1.30,11.42,2.72,3.35,3.53,-.20],
     [-21.75,.15,7.10,3.16,4.52,3.23,-.24],[-22.84,.99,3.40,3.77,4.83,3.65,.12],
     [-25.49,-.98,-2.61,5.1,4.12,6.21,.23],[-30.31,-2.56,-.47,3.78,3.05,9.54,-.18],
-    [21.10,-2.46,16.11,2.32,3.50,3.35,.14],
-    [21.93,-1.40,12.24,3.24,3.83,3.94,-.20],[23.81,.14,8.54,4.10,3.40,4.20,-.09],
-    [22.81,1.88,3.38,3.97,4.91,4.50,-.14],[23.64,3.92,-2.85,4.72,5.19,4.38,-.12],
+    [21.34,-2.46,16.11,2.32,3.50,3.35,.14],
+    [23.03,-1.95,12.24,3.24,3.43,3.94,-.20],[26.26,-1.51,8.43,3.58,3.40,4.27,-.09],
+    [28.64,-1.13,2.53,3.72,4.08,5.06,-.14],[30.46,-1.33,-4.44,4.23,4.41,6.92,-.12],
   ];
   const nearRoofs=headlandShelves.map(shelf=>rockShelf(...shelf,true));
   function onShelf({peak,rim},corner,distance,across) {
@@ -1149,7 +1116,26 @@ function createIsland(canvas, places, assets = {}) {
       shoreShrubs.push([px,py-.05,pz,.98,.63,shrub*2.399,shrub%4,.59+randomPlant()*.30]);
     }
   }
+  // Staggered basalt spires replace the simple far-shore silhouettes.
+  for (const [x,z,w,d,h,a] of [[-31.9,-27.42,3.1,2.55,5.8,-.48],[-35.31,-29.95,2.41,2.16,4.85,.39],
+    [-29.75,-26.45,1.61,1.30,2.73,.68],[-32.66,-24.77,1.91,1.34,1.68,-.31],
+    [31.51,-33.84,4.27,3.18,6.34,-.29],[36.56,-37.25,3.17,2.92,7.50,.40],
+    [38.45,-36.17,2.30,1.45,4.74,-.26],[31.63,-30.97,2.28,1.61,2.92,.21],
+    [46.51,-43.38,4.46,3.61,8.36,.58],[49.31,-46.14,2.87,2.15,6.36,-.30]]) {
+    const stack=rockShelf(x,-2.91,z,w,d,h,a);
+    breakerShelves.push([stack.rings,.19*Math.abs(a)+.23,h*.49]);
+  }
   activeFinish = 0;
+  const districtGlass=[];
+  const districtLights=[];
+  buildSkillsvilleDistricts(places,{
+    finish:value=>{activeFinish=value;},
+    tri,quad,box,shell,taper,leaf,coastalTree,rockShelf,
+    shrub:(...detail)=>shoreShrubs.push(detail),
+    breaker:(...detail)=>breakerShelves.push(detail),
+    glass:(...detail)=>districtGlass.push(detail),
+    light:(...detail)=>districtLights.push(detail),
+  },authoredDock,coast);
   function mesh() {
     const buffer=gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
@@ -1159,6 +1145,26 @@ function createIsland(canvas, places, assets = {}) {
     return {buffer,count};
   }
   const island=mesh();
+  // The pavilion panes and pools of lantern light need separate blended passes.
+  for (const [corners,color,roof] of districtGlass) {
+    activeFinish=roof ? 20 : 21;
+    quad(...corners,color,false);
+  }
+  const districtWindows=mesh();
+  for (const [x,z,rx,rz,strength,ground] of districtLights) {
+    const level=terraceHeight(x,z);
+    const point=(u,v)=>{
+      const px=x+(u*2-1)*rx,pz=z+(v*2-1)*rz;
+      return [px,Math.max(.064,ground+.015)+terraceHeight(px,pz)-level,pz,u,v,strength,23];
+    };
+    for(let row=0;row<4;row++) for(let col=0;col<4;col++) {
+      const a=point(col/4,row/4),b=point(col/4,(row+1)/4);
+      const c=point((col+1)/4,(row+1)/4),d=point((col+1)/4,row/4);
+      vertices.push(...a,...b,...c,...a,...c,...d);
+    }
+  }
+  const districtGlow=mesh();
+  activeFinish = 0;
   // Intersect each rock with the water, then build a strip for the advancing crest and backwash.
   function addBreaker(rings,phase,height) {
     const waterY=-2.5;
@@ -1368,7 +1374,7 @@ function createIsland(canvas, places, assets = {}) {
     ? {body:decodeMesh(assets.explorerBody),legs:[decodeMesh(assets.explorerLeft),decodeMesh(assets.explorerRight)],
       arms:assets.explorerLeftArm?.length ? [decodeMesh(assets.explorerLeftArm),decodeMesh(assets.explorerRightArm)] : []} : null;
   function bakeShadows() {
-    const size = Math.min(1536,gl.getParameter(gl.MAX_TEXTURE_SIZE));
+    const size = Math.min(2048,gl.getParameter(gl.MAX_TEXTURE_SIZE));
     const texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D,texture);
     gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,size,size,0,gl.RGBA,gl.UNSIGNED_BYTE,null);
@@ -1537,6 +1543,25 @@ function createIsland(canvas, places, assets = {}) {
   box(.068,1.133,.279,.027,.008,.007,'#a1dac0');
   activeFinish = 0;
   const packDetail = mesh();
+  const cameraTrees = [
+    ...dockTrees.map(([x,,z,,spread])=>[x,z,spread*.79]),
+    ...districtTrees.map(([x,z,,spread])=>[x,z,spread*.84]),
+  ];
+  function clearCameraDistance(avatar,angle,distance,shift) {
+    const dx=Math.sin(angle)+shift/distance,dz=Math.cos(angle);
+    for (let run=.82;run<distance;run+=.32) {
+      const x=avatar.x+dx*run,z=avatar.z+dz*run;
+      const throughTree=cameraTrees.some(([tx,tz,r])=>Math.hypot(x-tx,z-tz)<r);
+      const throughBuilding=places.some(([,bx,bz,,levels],index)=>{
+        if(!levels) return false;
+        if(index===2) return Math.hypot((x-bx)/4.96,(z-bz)/3.85)<1;
+        if(index===0) return Math.hypot((x-bx)/4.39,(z-bz)/3.48)<1;
+        return pavilionBlocks(index,x-bx,z-bz);
+      });
+      if (throughTree || throughBuilding || !insideIslandShore(x,z,coast)) return Math.max(.98,run-.38);
+    }
+    return distance;
+  }
   return (avatar,overview,angle=0,stride=0,time=0)=>{
     const {width,height}=canvas.getBoundingClientRect();
     if(!width||!height) return;
@@ -1550,15 +1575,24 @@ function createIsland(canvas, places, assets = {}) {
     gl.clearColor(0,0,0,0);
     gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
     const dockFraming = Math.max(0,Math.min(1,(avatar.z-16)/6));
-    const distance = 7.6-3.85*dockFraming;
-    const eye=overview?[10,41,49]:[avatar.x+Math.sin(angle)*distance+.63+.05*dockFraming,4.75-2.06*dockFraming,avatar.z+Math.cos(angle)*distance];
-    const target=overview?[0,0,0]:[avatar.x-Math.sin(angle)*2.2-.44*dockFraming,1+.37*dockFraming,avatar.z-Math.cos(angle)*2.2];
+    const follow=6.46-2.71*dockFraming, shift=.63+.05*dockFraming;
+    const distance=overview || dockFraming>.89 ? follow : clearCameraDistance(avatar,angle,follow,shift);
+    const cameraScale=distance/follow;
+    const overviewPullback = Math.max(1,1.31/(w/h));
+    const y=terraceHeight(avatar.x,avatar.z);
+    const eye=overview?[4*overviewPullback,18*overviewPullback,48*overviewPullback]:
+      [avatar.x+Math.sin(angle)*distance+shift*cameraScale,
+        y+2.26+(1.46-1.03*dockFraming)*cameraScale,avatar.z+Math.cos(angle)*distance];
+    const lead=2.2*(.30+.70*cameraScale);
+    const target=overview?[0,1.7,10]:[avatar.x-Math.sin(angle)*lead-.44*dockFraming,
+      y+(1.18+.19*dockFraming)*(.85+.15*cameraScale),avatar.z-Math.cos(angle)*lead];
     const forward=unit(subtract(target,eye));
     const right=unit(cross(forward,[0,1,0]));
     const up=cross(right,forward);
     for(const [name,value] of Object.entries({eye,right,up,forward})) gl.uniform3fv(uniforms[name],value);
     gl.uniform1f(uniforms.aspect,w/h);
     gl.uniform1f(uniforms.time,time);
+    gl.uniform1f(uniforms.mapView,overview ? 1 : 0);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D,shadowTexture);
     for (const material of materials) {
@@ -1573,10 +1607,11 @@ function createIsland(canvas, places, assets = {}) {
     if (furnishings) render(furnishings,[0,0,0]);
     if (materials[1].ready || materials[3].ready) render(plantDetails,[0,0,0]);
     const ground = dock && Math.abs(avatar.x)<2.5*dockBridgeScale(avatar.z)
-      ? .025+.135*Math.max(0,Math.min(1,(avatar.z-20.7)/.65)) : .025;
+      ? y+.025+.135*Math.max(0,Math.min(1,(avatar.z-20.7)/.65)) : y+.025;
     gl.enable(gl.BLEND);
     gl.blendFuncSeparate(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA,gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
     gl.depthMask(false);
+    render(districtGlow,[0,0,0]);
     if (!overview) render(breakers,[0,0,0]);
     render(shadow,[avatar.x,ground+.010,avatar.z]);
     gl.depthMask(true);
@@ -1601,11 +1636,12 @@ function createIsland(canvas, places, assets = {}) {
         render(explorer.arms[index],[avatar.x,ground+bounce,avatar.z],heading,warm,-side*stride*.21,0,1.37);
       }
     }
-    if (windows) {
+    if (windows || districtWindows.count) {
       gl.enable(gl.BLEND);
       gl.blendFuncSeparate(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA,gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
       gl.depthMask(false);
-      render(windows,[0,0,0],0,0,0,1);
+      render(districtWindows,[0,0,0],0,0,0,2);
+      if (windows) render(windows,[0,0,0],0,0,0,1);
       if (panes) render(panes,[0,0,0],0,0,0,1);
       gl.depthMask(true);
       gl.disable(gl.BLEND);
