@@ -1,0 +1,33 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SkillQuest | Real-World Skills Lab &amp; Portfolio</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101923;color:#eef7f4;font:16px system-ui}header,main{max-width:1440px;margin:auto;padding:16px 24px}header{display:flex;justify-content:space-between;gap:12px;align-items:center;border-bottom:1px solid #385058}h1,h2,p{margin:0 0 12px}h1{font-size:clamp(24px,4vw,38px);letter-spacing:.06em}small,.muted{color:#b5cfcd}main{display:grid;grid-template-columns:minmax(0,2fr) minmax(280px,1fr);gap:18px}.world,aside{background:#182630;border:1px solid #385058;border-radius:20px;overflow:hidden}aside,.controls{padding:18px}canvas{display:block;width:100%;height:clamp(320px,55vh,640px)}button,select,input,textarea{font:inherit}button,select{min-height:44px;border:1px solid #719592;border-radius:9px;background:#233941;color:#fff;padding:8px 12px;cursor:pointer}button:hover,button.primary{background:#a6f5cf;color:#132521}button:focus-visible,select:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px solid #ffd18b;outline-offset:2px}.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}.stack{display:grid;gap:8px}.stack button{text-align:left}textarea,input{display:block;width:100%;padding:8px;margin:4px 0 12px;border-radius:6px}textarea{min-height:72px}select{max-width:100%}.tag{color:#a6f5cf;font-size:.8rem;letter-spacing:.14em;font-weight:700}.card{padding:12px;background:#233941;border-radius:10px;margin:8px 0;overflow-wrap:anywhere}dl{margin:0}dd{margin:0 0 8px;white-space:pre-wrap}@media(max-width:760px){main{grid-template-columns:1fr;padding:12px}header{padding:12px}aside,.controls{padding:12px}}
+[hidden]{display:none!important}
+html[data-arrival-study] header,html[data-arrival-study] aside,html[data-arrival-study] .controls{display:none}
+html[data-arrival-study] main{display:block;padding:0;max-width:none}
+html[data-arrival-study] .world{border:0;border-radius:0}
+html[data-arrival-study] canvas{height:100vh}
+#view3d{background:#a6839e url('coastal-sunset.jpg') center top/100% 76% no-repeat}
+
+body{background:radial-gradient(ellipse at 50% 0,#243e43 0,#101923 65%)}
+main{grid-template-columns:minmax(0,1.9fr) minmax(300px,1fr);align-items:start}
+.world,aside{box-shadow:0 12px 32px #060d1660}
+.controls{background:#14232d}.controls a{color:#abf3d6;margin-right:8px}
+.controls .row:first-of-type button{min-width:44px}
+.controls button[aria-pressed=true]{background:#a6f5cf;color:#132521}
+html[data-arrival-study] canvas:focus-visible{outline:3px solid #ffd18b;outline-offset:-3px}
+button:disabled{opacity:.55;cursor:default}
+#studio-scene{margin:0;position:relative;background:#122b3b}
+#studio-scene img{width:100%;display:block;aspect-ratio:3/2;object-fit:cover}
+#studio-scene figcaption{padding:14px 18px;background:#14232d;color:#c9e4df}
+#title{margin-top:8px;scroll-margin:18px}
+.studio-choices{display:grid;gap:8px;margin:16px 0}
+.studio-choices button{text-align:left;padding:10px 14px;font-weight:700}
+.studio-choices small{display:block;font-weight:400}
+.studio-choices button[aria-pressed=true]{border-color:#a6f5cf;background:#294d49}
+.studio-choices button:hover small{color:#17332b}
+.quiet{margin-top:16px}
+@media(max-width:760px){main{grid-template-columns:minmax(0,1fr)}#studio-scene img{aspect-ratio:16/9}}
+</style>
+<header><div><div class="tag">SKILLSVILLE / WORLD STUDY</div><h1>SKILLQUEST</h1></div><span id="reward" role="status">0 expedition stamps</span></header>
+<main><section class="world" aria-label="Explore the island"><canvas id="view3d" aria-hidden="true"></canvas><canvas id="scene" aria-hidden="true"></canvas><figure id="studio-scene" hidden><img id="studio-art" data-src="studio.jpg" alt="Communication Skills Lab with curved ceramic arches, a glass seaward wall and a glowing relay globe"><figcaption>Communication Skills Lab · Relay operations</figcaption></figure><div id="world-controls" class="controls" inert><a href="proposal.html">SkillQuest proposal</a> <button id="look" hidden>Rotate view</button> <button id="camera" hidden aria-pressed="false">Island overview</button> <button id="still-view" hidden aria-pressed="false">Still view</button><p id="position" role="status">Loading South Dock…</p><div class="row" aria-label="Movement"><button data-move="0,-1" aria-label="Walk north">↑</button><button data-move="-1,0" aria-label="Walk west">←</button><button data-move="0,1" aria-label="Walk south">↓</button><button data-move="1,0" aria-label="Walk east">→</button><button id="enter" class="primary">Enter</button></div><div class="row"><label for="travel">Fast travel</label><select id="travel"></select><button id="go">Go</button></div><small>Arrow keys or WASD when the page is focused. Enter opens a nearby building. Fast travel reaches every entrance.</small></div></section><aside><div class="tag" id="label">ARRIVAL / SOUTH DOCK</div><h2 id="title" tabindex="-1">Orientation Hub</h2><div id="panel"></div></aside></main>
+<script>if(new URLSearchParams(location.search).get("view")==="arrival-study") document.documentElement.dataset.arrivalStudy="";</script><script src="south-dock-mesh.js"></script><script src="island.js"></script><script src="world.js"></script></html>

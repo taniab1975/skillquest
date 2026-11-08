@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SkillQuest · Design proposal</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#111e25;color:#edf6ed;font:17px/1.6 system-ui}
+header,main,footer{width:min(1120px,calc(100% - 36px));margin:auto}header{display:flex;gap:16px;justify-content:space-between;align-items:center;padding:22px 0;border-bottom:1px solid #375254}nav{display:flex;gap:15px;flex-wrap:wrap}
+a{color:#abf3d6;text-underline-offset:4px}a:focus-visible{outline:3px solid #ffd294;outline-offset:4px}
+h1,h2,h3,p{margin:0 0 .65em}h1{font-size:clamp(52px,11vw,125px);line-height:.95;letter-spacing:-.07em}h2{font-size:clamp(28px,5vw,48px);line-height:1.07;letter-spacing:-.035em}h3{line-height:1.2}
+section{padding:48px 0;border-bottom:1px solid #375254}.eyebrow{color:#abf3d6;letter-spacing:.17em;font-size:.75rem;font-weight:750}.lead{font-size:clamp(19px,3vw,26px);max-width:760px}.small,figcaption{color:#b9ceca;font-size:.93rem}
+figure{margin:24px 0 0}iframe,img{display:block;width:100%;border:1px solid #395657;border-radius:16px}iframe{height:clamp(420px,65vh,650px);background:#1a2f37}figcaption{margin-top:8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(235px,100%),1fr));gap:14px}.card{padding:20px;background:#1b3038;border-radius:14px}.cta{display:inline-block;background:#abf3d6;color:#15282b;padding:10px 17px;border-radius:9px;font-weight:750}footer{padding:24px 0 42px}
+</style>
+<header><strong>SKILLQUEST / DESIGN PROPOSAL</strong><nav aria-label="Proposal sections"><a href="#world">World</a><a href="#journey">Student journey</a><a href="#skills">Skills</a><a href="#teacher">Teacher dashboard</a><a href="#application">Trial application</a><a href="#resources">Resources</a></nav></header>
+<main>
+<section id="world">
+<p class="eyebrow">YEARS 10–12 · EMPLOYABILITY SKILLS PORTFOLIO</p>
+<h1>SkillQuest</h1>
+<p class="lead">SkillQuest is the whole learning journey. It takes place in Skillsville, where students visit dedicated Skills Labs and track key experiences in My Portfolio.</p>
+<a class="cta" href="index.html">Explore the playable island</a>
+<p>SkillQuest is a proposed Years 10–12 learning and portfolio program. Students learn what employability capabilities look like, practise them in a fictional world and use STAR to describe where they have used them in real life. Over time, they can revisit experiences and notice what they enjoy and where their interests are developing.</p>
+<p>Each capability has a dedicated Skills Lab where students learn what the skill looks like, experiment with different approaches, develop it through practice, see their progress and draw conclusions from what they experience. My Portfolio is where students track key experiences over time, use STAR to explain what they did and connect those experiences to transferable skills. Communication Skills Lab is playable in the prototype. Critical Thinking Skills Lab is an example of a possible future destination.</p>
+<p class="small">This blueprint holds the evolving proposal and design concepts. The playable world is a separate companion prototype.</p>
+</section>
+<section id="journey">
+<p class="eyebrow">FIRST PLAYABLE JOURNEY</p>
+<h2>From South Dock to a real example</h2>
+<div class="grid">
+<article class="card"><h3>01 · Arrive</h3><p>Choose a suit and follow the lit path north. The ring sculpture makes Discovery Plaza a meeting point students can find again.</p></article>
+<article class="card"><h3>02 · Discover and practise</h3><p>Head west to the twin masts. In Communication Skills Lab, explore familiar examples or radio instructions to Kai in Relay Rescue. Feedback explains what made the message clear.</p></article>
+<article class="card"><h3>03 · Record and revisit</h3><p>Use My Portfolio to describe a real situation, task, action and result. Revisit the entry in the gallery. Signal Keeper records the mission; a portfolio entry records the learner’s own example.</p></article>
+</div>
+<figure><img src="studio.jpg" width="1536" height="1024" loading="lazy" alt="Illustrated Communication Skills Lab with coastal windows and a glowing relay globe"><figcaption>Studio illustration used in the playable welcome. The explorable scene models building exteriors.</figcaption></figure>
+</section>
+<section id="skills">
+<p class="eyebrow">SKILLSVILLE / LEARNING DESTINATIONS</p>
+<h2>The eight Skills Labs</h2>
+<div class="grid">
+<article class="card"><h3>Communication Skills Lab</h3><p>Explain clearly, listen for misunderstandings and check what others heard.</p></article>
+<article class="card"><h3>Collaboration Skills Lab</h3><p>Agree on roles, share information and support others to complete a task.</p></article>
+<article class="card"><h3>Initiative Skills Lab</h3><p>Notice a need, decide what you can do and take responsibility for following through.</p></article>
+<article class="card"><h3>Problem-solving Skills Lab</h3><p>Investigate what is happening, compare options and test a solution.</p></article>
+<article class="card"><h3>Adaptability Skills Lab</h3><p>Change a plan when conditions shift and learn from the result.</p></article>
+<article class="card"><h3>Self-management Skills Lab</h3><p>Plan time and effort, organise materials and check progress.</p></article>
+<article class="card"><h3>Creativity Skills Lab</h3><p>Generate ideas and improve an existing approach.</p></article>
+<article class="card"><h3>Leadership Skills Lab</h3><p>Help a group agree on priorities, invite input and support action.</p></article>
+</div>
+<p class="small">Communication is playable in the current prototype. The other seven labs are exterior previews.</p>
+</section>
+<section id="teacher">
+<p class="eyebrow">DASHBOARD CONCEPT</p>
+<h2>What a teacher would see</h2>
+<div class="grid">
+<article class="card"><h3>Cohort view</h3><p>See who has practised, who has submitted an example and which submissions need feedback.</p></article>
+<article class="card"><h3>Student evidence</h3><p>Read submitted STAR reflections by date and capability, then ask for clarification or a revision where needed.</p></article>
+<article class="card"><h3>Review history</h3><p>See submitted versions and feedback over time. Keep game rewards and evidence review in separate fields.</p></article>
+</div>
+<p class="small">Proposed concept. The current playable prototype stores reflections locally and does not have school accounts or a teacher dashboard.</p>
+</section>
+<section id="application">
+<p class="eyebrow">TRIAL ENDORSED-PROGRAM APPLICATION</p>
+<h2>Working application outline</h2>
+<div class="grid">
+<article class="card"><h3>Purpose and outcomes</h3><p>Years 10–12 learners recognise capability behaviours, practise them and use real experiences to articulate what they did and learned.</p></article>
+<article class="card"><h3>Teaching and completion</h3><p>Develop a teaching sequence, trial duration and evidence criteria. Define what a complete portfolio would contain and how a reviewer would judge it.</p></article>
+<article class="card"><h3>Provider responsibilities</h3><p>Define teacher support, moderation, records and evaluation. Confirm the application pathway and address overlap with existing WACE courses.</p></article>
+</div>
+<p class="small">Planning outline only. Endorsement, hours and unit equivalence remain unconfirmed.</p>
+</section>
+<section id="resources">
+<p class="eyebrow">COMPANION MATERIALS</p>
+<h2>Explore the world and the design</h2>
+<p><a href="dock-comparison.html">Compare the South Dock concept with the live browser build</a></p>
+<p><strong>Playable build update.</strong> South Dock now uses geometry exported from the Blender study. Start on the boardwalk and walk north to Discovery Plaza, then take the southwest trail to the Communication Skills Lab. The concept images below show the intended finish.</p>
+<p>These three exterior concepts set a proposed art target for Skillsville. The playable prototype is available separately below.</p>
+<figure><img src="concepts/island-overview.png" alt="Aerial view of Skillsville with coastal labs around Discovery Plaza" loading="lazy"><figcaption>Concept · Skillsville island overview</figcaption></figure>
+<figure><img src="concepts/south-dock.png" alt="Avatar arriving at South Dock and facing the lit trail to Discovery Plaza" loading="lazy"><figcaption>Concept · Arrival at South Dock</figcaption></figure>
+<figure><img src="concepts/communication-lab.png" alt="Avatar approaching the glass-domed Communication Skills Lab" loading="lazy"><figcaption>Concept · Communication Skills Lab approach</figcaption></figure>
+<ul>
+<li><a href="index.html">Playable SkillQuest world</a></li>
+<li><a href="index.html?view=overview">Interactive island overview</a></li>
+<li><a href="#journey">First journey walkthrough and studio illustration</a></li>
+<li><a href="#flow">Learning and evidence flow diagram</a></li>
+</ul>
+<figure id="flow"><svg viewBox="0 0 720 140" width="100%" role="img" aria-labelledby="flow-title">
+<title id="flow-title">Discover a capability, practise in the world, then record a real example in the portfolio.</title>
+<g fill="#23424a"><rect x="10" y="28" width="200" height="76" rx="12"/><rect x="260" y="28" width="200" height="76" rx="12"/><rect x="510" y="28" width="200" height="76" rx="12"/></g>
+<g fill="#edf6ed" font-family="system-ui" font-size="22" text-anchor="middle"><text x="110" y="73">Discover</text><text x="235" y="73">→</text><text x="360" y="73">Practise</text><text x="485" y="73">→</text><text x="610" y="73">Reflect and record</text></g>
+</svg><figcaption>Students can also record existing experience directly through My Portfolio.</figcaption></figure>
+</section>
+<section id="pilot">
+<p class="eyebrow">DESIGN INTENT &amp; REQUIREMENTS</p>
+<h2>What the first pilot should tell us</h2>
+<div class="grid">
+<article class="card"><h3>Exploration</h3><p>Can students find the studio unaided, recognise a building from its silhouette, and remember the route back? Observe where they choose to explore.</p></article>
+<article class="card"><h3>Learning transfer</h3><p>Can students explain why their radio message worked and identify a genuine example at school, work, home or in the community?</p></article>
+<article class="card"><h3>Evidence over time</h3><p>Can students find an older example, explain what they enjoyed and recognise a pattern in their interests? Teacher feedback and provider moderation are proposed.</p></article>
+</div>
+<p>The eight capability labels are provisional. SCSA endorsement is a required development outcome. The current demo uses browser-local storage and fictional examples.</p>
+</section>
+</main>
+<footer class="small">Reference for proposal structure and visual quality · <a href="https://taniab1975.github.io/career-empire-blueprint/#overview">Career Empire Blueprint</a> · <a href="https://emmanuel-ict-support.github.io/GTCEM-Career-Empire/playable-3d/">Career Empire 3D</a></footer>
+</html>

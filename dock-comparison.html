@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skillsville · South Dock comparison</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#142127;color:#edf6ed;font:16px/1.55 system-ui}
+main{width:min(1450px,calc(100% - 32px));margin:24px auto}
+a{color:#a9f1d5}
+h1,h2,p{margin:0 0 12px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:24px 0}
+figure{margin:0;background:#1e333b;border:1px solid #3e5a60;border-radius:12px;overflow:hidden}
+img,iframe{width:100%;aspect-ratio:16/9;display:block;border:0;object-fit:cover}
+figcaption{padding:12px}
+@media(max-width:720px){.grid{grid-template-columns:1fr}}
+</style>
+<main>
+<h1>South Dock arrival comparison</h1>
+<p>The first stretch of South Dock from the player's camera. Click the live view and use WASD or the arrow keys to walk, or <a href="index.html">open the full playable world</a>.</p>
+<div class="grid">
+<figure><img src="concepts/south-dock.png" alt="South Dock concept showing lush coastal architecture, warm lanterns and gold light on the water"><figcaption><strong>Reference concept</strong> · Target composition, materials and lighting.</figcaption></figure>
+<figure><iframe src="index.html?view=arrival-study" title="Live playable South Dock arrival view"></iframe><figcaption><strong>Current browser build</strong> · Breaking surf, layered planting, warm glass and the curved mint landing.</figcaption></figure>
+</div>
+<h2>Where the build still differs</h2>
+<p>Wave crests wrap around the rocks. Palms and planted ledges frame the mint route, and amber window shapes reflect on the paving. The reference still has finer surf spray, more intricate coastal terraces and richer depth through the glass. South Dock remains the calibration scene.</p>
+<p><a href="proposal.html">Return to the SkillQuest proposal</a></p>
+</main>
+</html>
