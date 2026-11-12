@@ -170,7 +170,11 @@ function openPlace(index, focus = true) {
     add('p',theme.detail);
     add('p','Exterior preview. Visit Communication to play Relay Rescue.');
   }
-  if (focus) byId('title').focus();
+  if (focus) {
+    const activity = byId('embed-activity');
+    if (view === 'embed' && activity?.getAttribute('aria-expanded') === 'false') activity.click();
+    byId('title').focus();
+  }
 }
 function gallery() {
   const row = add('div', '');

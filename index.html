@@ -40,15 +40,53 @@ button:disabled{opacity:.55;cursor:default}
 .lab-directory button:hover small{color:#17332b}
 .quiet{margin-top:16px}
 @media(max-width:760px){main{grid-template-columns:minmax(0,1fr)}#studio-scene img{aspect-ratio:16/9}}
+
+html[data-embed],html[data-embed] body{height:100%;overflow:hidden}
+html[data-embed] body>header,html[data-embed] #local-preview{display:none}
+html[data-embed] main{display:block;position:relative;max-width:none;padding:0;height:100dvh}
+html[data-embed] .world{position:relative;width:100%;height:100%;border:0;border-radius:0;box-shadow:none}
+html[data-embed] canvas,html[data-embed] #studio-scene,html[data-embed] #studio-scene img{width:100%;height:100%;height:100dvh}
+html[data-embed] #studio-scene figcaption{display:none}
+html[data-embed] #world-controls{position:absolute;z-index:1;left:.6rem;bottom:.6rem;width:max-content;max-width:calc(100% - 1.2rem);padding:.45rem .55rem;border:1px solid #87b4a875;border-radius:.6rem;background:#12242de8;box-shadow:0 2px 14px #06141755}
+html[data-embed] #world-controls>a,html[data-embed] #world-controls>small,html[data-embed] #still-view{display:none}
+html[data-embed] #position{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+html[data-embed] #world-controls .row{gap:.3rem;margin:.3rem 0 0}
+html[data-embed] #world-controls button,html[data-embed] #world-controls select{font-size:.8rem;padding:.3rem .45rem;min-height:34px}
+html[data-embed] #world-controls .row:first-of-type button{min-width:34px}
+html[data-embed] #world-controls label{font-size:.78rem}
+html[data-embed] #travel{min-width:0;max-width:min(14rem,48vw)}
+html[data-embed] #embed-activity{display:block;position:absolute;right:.65rem;top:.65rem;z-index:3;min-height:36px;background:#12242de8;color:#eef7f4}
+html[data-embed] #embed-activity[aria-expanded=true]{background:#a6f5cf;color:#132521}
+html[data-embed] aside{display:none;position:absolute;z-index:2;top:3.4rem;right:.65rem;width:min(24rem,calc(100% - 1.3rem));max-height:calc(100% - 4.05rem);overflow:auto;overscroll-behavior:contain;border-radius:.7rem;background:#14232df5}
+html[data-embed][data-activity-open] aside{display:block}
+@media(max-width:500px){html[data-embed] #world-controls button,html[data-embed] #world-controls select{min-height:40px}html[data-embed] #world-controls .row:first-of-type button{min-width:40px}}
 </style>
 <header><div><div class="tag">SKILLSVILLE / COASTAL EXPEDITION</div><h1>SKILLQUEST</h1></div><span id="reward" role="status">0 expedition stamps</span></header>
 <p id="local-preview" hidden><strong>Local preview.</strong> Opening this file directly can leave out textures for stone, plants and reflections. <a href="https://taniab1975.github.io/skillquest/">Open the full live world</a> or <a href="https://taniab1975.github.io/skillquest/index.html?view=overview">see the island-wide rollout</a>.</p>
-<main><section class="world" aria-label="Explore the island"><canvas id="view3d" aria-hidden="true"></canvas><canvas id="scene" aria-hidden="true"></canvas><figure id="studio-scene" hidden><img id="studio-art" data-src="studio.jpg" alt="Communication Skills Lab with curved ceramic arches, a glass seaward wall and a glowing relay globe"><figcaption>Communication Skills Lab · Relay operations</figcaption></figure><div id="world-controls" class="controls" inert><a href="proposal.html">SkillQuest proposal</a> <button id="look" hidden>Rotate view</button> <button id="camera" hidden aria-pressed="false">Island overview</button> <button id="still-view" hidden aria-pressed="false">Still view</button><p id="position" role="status">Loading South Dock…</p><div class="row" aria-label="Movement"><button data-move="0,-1" aria-label="Walk north">↑</button><button data-move="-1,0" aria-label="Walk west">←</button><button data-move="0,1" aria-label="Walk south">↓</button><button data-move="1,0" aria-label="Walk east">→</button><button id="enter" class="primary">Enter</button></div><div class="row"><label for="travel">Fast travel</label><select id="travel"></select><button id="go">Go</button></div><small>Arrow keys or WASD when the page is focused. Enter opens a nearby building. Fast travel reaches every entrance.</small></div></section><aside><div class="tag" id="label">ARRIVAL / SOUTH DOCK</div><h2 id="title" tabindex="-1">Orientation Hub</h2><div id="panel"></div></aside></main>
+<main><section class="world" aria-label="Explore the island"><canvas id="view3d" aria-hidden="true"></canvas><canvas id="scene" aria-hidden="true"></canvas><figure id="studio-scene" hidden><img id="studio-art" data-src="studio.jpg" alt="Communication Skills Lab with curved ceramic arches, a glass seaward wall and a glowing relay globe"><figcaption>Communication Skills Lab · Relay operations</figcaption></figure><div id="world-controls" class="controls" inert><a href="proposal.html">SkillQuest proposal</a> <button id="look" hidden>Rotate view</button> <button id="camera" hidden aria-pressed="false">Island overview</button> <button id="still-view" hidden aria-pressed="false">Still view</button><p id="position" role="status">Loading South Dock…</p><div class="row" aria-label="Movement"><button data-move="0,-1" aria-label="Walk north">↑</button><button data-move="-1,0" aria-label="Walk west">←</button><button data-move="0,1" aria-label="Walk south">↓</button><button data-move="1,0" aria-label="Walk east">→</button><button id="enter" class="primary">Enter</button></div><div class="row"><label for="travel">Fast travel</label><select id="travel"></select><button id="go">Go</button></div><small>Arrow keys or WASD when the page is focused. Enter opens a nearby building. Fast travel reaches every entrance.</small></div></section><button type="button" id="embed-activity" aria-expanded="false" aria-controls="activity-panel" hidden>Activity</button><aside id="activity-panel"><div class="tag" id="label">ARRIVAL / SOUTH DOCK</div><h2 id="title" tabindex="-1">Orientation Hub</h2><div id="panel"></div></aside></main>
 <script>
-if (new URLSearchParams(location.search).get("view") === "arrival-study") {
+const layout = new URLSearchParams(location.search).get("view");
+if (layout === "arrival-study") {
   document.documentElement.dataset.arrivalStudy = "";
+} else if (layout === "embed") {
+  const root = document.documentElement;
+  const activity = document.getElementById("embed-activity");
+  root.dataset.embed = "";
+  activity.hidden = false;
+  function setActivity(open) {
+    root.toggleAttribute("data-activity-open", open);
+    activity.setAttribute("aria-expanded", String(open));
+    activity.textContent = open ? "Close activity" : "Activity";
+  }
+  activity.addEventListener("click", () => setActivity(activity.getAttribute("aria-expanded") !== "true"));
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && root.hasAttribute("data-activity-open")) {
+      setActivity(false);
+      activity.focus();
+    }
+  });
 } else if (location.protocol === "file:") {
   document.getElementById("local-preview").hidden = false;
 }
 </script>
-<script src="south-dock-mesh.js"></script><script src="lab-exteriors.js?v=lab-studios"></script><script src="districts.js?v=lab-studios"></script><script src="island.js?v=lab-studios"></script><script src="world.js?v=lab-studios"></script></html>
+<script src="south-dock-mesh.js"></script><script src="lab-exteriors.js?v=lab-studios"></script><script src="districts.js?v=lab-studios"></script><script src="island.js?v=lab-studios"></script><script src="world.js?v=scene-embed-20261112"></script></html>
