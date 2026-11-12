@@ -1,5 +1,31 @@
 'use strict';
 
+const sampleEntries = [
+  [2, '2026-02-16', 'Explaining the relay route',
+    'A new teammate needed directions in Relay Rescue.', 'Guide them to the right dock.',
+    'I read the route aloud after a prompt from my partner.', 'They reached the ramp but asked which dock to use. Next time I will give the dock number first.'],
+  [3, '2026-03-11', 'Sharing jobs for a display',
+    'Our group was preparing a class display.', 'Agree who would make each part.',
+    'I chose the captions and checked our jobs against the teacher’s checklist.', 'All parts were finished, but two of us had written the same caption.'],
+  [4, '2026-04-29', 'Noticing a queue bottleneck',
+    'The school stall queue was blocking the pickup table.', 'Find one change we could try.',
+    'I pointed out the overlap and suggested a separate pickup sign after a teammate asked for ideas.', 'We had a change to try at the next stall.'],
+  [2, '2026-05-20', 'Briefing stall volunteers',
+    'Two volunteers arrived halfway through setup.', 'Explain where customers should order and collect.',
+    'I pointed to each station and asked a volunteer to repeat the pickup instructions.', 'They spotted that one sign faced the wrong way, so we turned it before opening.'],
+  [3, '2026-06-24', 'Coordinating a handover',
+    'Our event team changed shifts during lunch.', 'Help the next group take over.',
+    'I asked each teammate what still needed doing, agreed who would own each job and wrote a shared handover.', 'The next group picked up all three jobs without asking us to return.'],
+  [4, '2026-08-05', 'Testing a new pickup layout',
+    'A later stall had the same congestion.', 'Improve the layout before the busiest break.',
+    'I sketched two layouts, asked the supervisor to approve a trial and counted how often the queue crossed the pickup area.', 'Crossings fell from six to two in the same five-minute window. I shared the layout for the next team.'],
+  [2, '2026-09-16', 'Adapting a visitor briefing',
+    'At a school open day, visitors were unfamiliar with campus names.', 'Help families reach the workshop.',
+    'I swapped building names for visible landmarks, asked a family to tell me their next turn and adjusted my wording when they hesitated.', 'The next three families followed the route without needing a second explanation.'],
+].map(([skill, date, title, Situation, Task, Action, Result]) => ({
+  skill, date, title, Situation, Task, Action, Result,
+}));
+
 async function startWorld() {
 const dockAssets = await loadSouthDock();
 const arrivalLayout = typeof southDockLayout === 'object'
@@ -86,6 +112,7 @@ let lastWaterFrame = 0;
 let studioView = 'welcome';
 let insideStudio = false;
 let sort = 'timeline';
+let portfolioSource = view === 'embed' ? 'sample' : 'saved';
 
 function save() {
   try {
@@ -121,7 +148,12 @@ function labDirectory() {
   const directory=add('details','');
   directory.className='lab-directory';
   add('summary','Skills Lab directory',directory);
-  const list=add('ul','',directory);
+  const scroll = add('div', '', directory);
+  scroll.className = 'portfolio-scroll';
+  scroll.tabIndex = 0;
+  scroll.setAttribute('role', 'region');
+  scroll.setAttribute('aria-label', 'Skills Lab logos');
+  const list=add('ul','',scroll);
   for (const [key,theme] of Object.entries(labThemes)) {
     const index=Number(key);
     const row=add('li','',list);
@@ -129,7 +161,7 @@ function labDirectory() {
     visit.style.setProperty('--lab-accent',theme.accent);
     visit.append(createLabMark(index));
     const name=add('span',places[index][0],visit);
-    add('small',theme.landmark,name);
+    add('small',theme.meaning,name);
   }
 }
 function openPlace(index, focus = true) {
@@ -165,6 +197,7 @@ function openPlace(index, focus = true) {
   } else if (index === 10) {
     add('p', 'Look for the woven commons, the copper launch ramp and the guiding beacon. The Skills Lab directory shows each building’s mark. The path north leads to My Portfolio.');
     button('Walk to Communication Skills Lab',approachCommunication).className='primary';
+    button('Open My Portfolio', () => travel(1));
     labDirectory();
   } else {
     add('p',theme.detail);
@@ -177,24 +210,87 @@ function openPlace(index, focus = true) {
   }
 }
 function gallery() {
-  const row = add('div', '');
-  row.className = 'row';
-  for (const [key, name] of [['timeline', 'Timeline'], ['skill', 'By capability']]) {
-    const control = button(name, () => { sort = key; openPlace(1); }, row);
-    control.setAttribute('aria-pressed', String(sort === key));
+  const source = add('div', '');
+  const order = add('div', '');
+  const content = add('div', '');
+  const formatter = new Intl.DateTimeFormat('en-AU', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+
+  function choices(parent, label, options, selected, onChange) {
+    parent.className = 'row';
+    parent.setAttribute('role', 'group');
+    parent.setAttribute('aria-label', label);
+    for (const [key, name] of options) {
+      const control = button(name, () => {
+        for (const sibling of parent.children) sibling.setAttribute('aria-pressed', String(sibling === control));
+        onChange(key);
+        renderEntries();
+      }, parent);
+      control.setAttribute('aria-pressed', String(selected === key));
+    }
   }
-  if (!data.entries.length) add('p', 'Your saved STAR reflections will appear here.');
-  if (sort === 'skill' && data.entries.length) add('h3', 'Communication');
-  for (const entry of [...data.entries].reverse()) {
-    const card = add('article', '');
-    card.className = 'card';
-    add('h3', 'Communication · ' + entry.date, card);
-    const list = add('dl', '', card);
+
+  function skillHeading(parent, skill, tag) {
+    const theme = labThemes[skill];
+    const heading = add(tag, theme.name, parent);
+    heading.className = 'portfolio-skill';
+    heading.style.setProperty('--lab-accent', theme.accent);
+    heading.prepend(createLabMark(skill));
+  }
+
+  function entryCard(entry, parent, grouped) {
+    const card = add('article', '', parent);
+    card.className = 'card portfolio-entry';
+    if (!grouped) skillHeading(card, entry.skill, 'p');
+    if (entry.title) add('h4', entry.title, card);
+    const iso = /^\d{4}-\d{2}-\d{2}$/.test(entry.date);
+    const date = add('time', iso ? formatter.format(new Date(entry.date)) : entry.date, card);
+    if (iso) date.dateTime = entry.date;
+    const star = add('details', '', card);
+    add('summary', 'Read STAR reflection', star);
+    const list = add('dl', '', star);
     for (const field of fields) {
       add('dt', field, list);
       add('dd', entry[field], list);
     }
   }
+
+  function renderEntries() {
+    content.replaceChildren();
+    const sample = portfolioSource === 'sample';
+    const entries = sample ? sampleEntries : data.entries.map(entry => ({ ...entry, skill: 2 }));
+    add('p', sample
+      ? 'Alex Morgan · Fictional student. Follow the evidence from February to September.'
+      : 'Your STAR reflections are saved in this browser.', content);
+    if (!entries.length && sort === 'timeline') {
+      add('p', 'Your saved STAR reflections will appear here.', content);
+      return;
+    }
+    const scroll = add('div', '', content);
+    scroll.className = 'portfolio-scroll';
+    scroll.tabIndex = 0;
+    scroll.setAttribute('role', 'region');
+    scroll.setAttribute('aria-label', sort === 'skill' ? 'Employability skills and evidence' : 'Chronological evidence');
+    if (sort === 'timeline') {
+      for (const entry of entries) entryCard(entry, scroll, false);
+      return;
+    }
+    for (const [key, theme] of Object.entries(labThemes)) {
+      const skill = Number(key);
+      const group = add('section', '', scroll);
+      group.className = 'portfolio-group';
+      skillHeading(group, skill, 'h3');
+      add('p', theme.meaning, group);
+      const matching = entries.filter(entry => entry.skill === skill);
+      if (!matching.length) add('small', 'No entries yet', group);
+      for (const entry of matching) entryCard(entry, group, true);
+    }
+  }
+
+  choices(source, 'Portfolio records', [['sample', 'Sample student'], ['saved', 'My entries']],
+    portfolioSource, key => { portfolioSource = key; });
+  choices(order, 'View evidence', [['timeline', 'Chronology'], ['skill', 'By skill type']],
+    sort, key => { sort = key; });
+  renderEntries();
 }
 const challenges = [
   {
@@ -306,6 +402,7 @@ function reflection() {
     data.entries.push({...draft, date: new Date().toLocaleDateString('en-AU')});
     save();
     draft = {};
+    portfolioSource = 'saved';
     travel(1);
     add('p', storage ? 'Reflection saved in this browser.' : 'Reflection added for this session. Browser storage is unavailable.').setAttribute('role', 'status');
   });
@@ -364,7 +461,7 @@ document.querySelectorAll('[data-move]').forEach(control => {
 });
 const keys = {arrowup:[0,-1], w:[0,-1], arrowdown:[0,1], s:[0,1], arrowleft:[-1,0], a:[-1,0], arrowright:[1,0], d:[1,0]};
 document.addEventListener('keydown', event => {
-  if (insideStudio || event.ctrlKey || event.metaKey || event.altKey || event.target.closest('button,select,textarea,input')) return;
+  if (insideStudio || event.ctrlKey || event.metaKey || event.altKey || event.target.closest('button,select,textarea,input,.portfolio-scroll,summary')) return;
   const direction = keys[event.key.toLowerCase()];
   if (direction) {
     event.preventDefault();

@@ -60,6 +60,17 @@ html[data-embed] #embed-activity[aria-expanded=true]{background:#a6f5cf;color:#1
 html[data-embed] aside{display:none;position:absolute;z-index:2;top:3.4rem;right:.65rem;width:min(24rem,calc(100% - 1.3rem));max-height:calc(100% - 4.05rem);overflow:auto;overscroll-behavior:contain;border-radius:.7rem;background:#14232df5}
 html[data-embed][data-activity-open] aside{display:block}
 @media(max-width:500px){html[data-embed] #world-controls button,html[data-embed] #world-controls select{min-height:40px}html[data-embed] #world-controls .row:first-of-type button{min-width:40px}}
+.portfolio-scroll{max-height:min(44dvh,25rem);overflow-y:auto;scrollbar-gutter:stable;padding:4px 8px 4px 2px;overscroll-behavior:contain}
+.portfolio-scroll:focus-visible,summary:focus-visible{outline:2px solid #ffd18b;outline-offset:2px}
+#panel button[aria-pressed="true"]{background:#a6f5cf;color:#132521}
+.portfolio-group{padding:12px 0;border-top:1px solid #385058}
+.portfolio-group p{margin:.3rem 0}
+.portfolio-skill{display:flex;align-items:center;gap:8px;margin:0;color:var(--lab-accent);font-weight:700}
+.portfolio-skill .lab-mark{width:24px;height:24px;flex:none}
+.portfolio-entry h4{margin:.35rem 0}
+.portfolio-entry time{color:#c9e0da;font-size:.86rem}
+.portfolio-entry summary{cursor:pointer;margin-top:.45rem;color:#abf3d6}
+.portfolio-entry dt{font-weight:700;margin-top:.5rem}
 </style>
 <header><div><div class="tag">SKILLSVILLE / COASTAL EXPEDITION</div><h1>SKILLQUEST</h1></div><span id="reward" role="status">0 expedition stamps</span></header>
 <p id="local-preview" hidden><strong>Local preview.</strong> Opening this file directly can leave out textures for stone, plants and reflections. <a href="https://taniab1975.github.io/skillquest/">Open the full live world</a> or <a href="https://taniab1975.github.io/skillquest/index.html?view=overview">see the island-wide rollout</a>.</p>
@@ -89,4 +100,4 @@ if (layout === "arrival-study") {
   document.getElementById("local-preview").hidden = false;
 }
 </script>
-<script src="south-dock-mesh.js"></script><script src="lab-exteriors.js?v=lab-studios"></script><script src="districts.js?v=lab-studios"></script><script src="island.js?v=lab-studios"></script><script src="world.js?v=scene-embed-20261112"></script></html>
+<script src="south-dock-mesh.js"></script><script src="lab-exteriors.js?v=lab-studios"></script><script src="districts.js?v=lab-studios"></script><script src="island.js?v=lab-studios"></script><script src="world.js?v=portfolio-growth-20261112"></script></html>
