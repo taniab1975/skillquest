@@ -209,7 +209,7 @@ function openPlace(index, focus = true) {
     labDirectory();
   } else {
     add('p',theme.detail);
-    add('p','Exterior preview. Visit Communication to play Relay Rescue.');
+    add('p','Recommended pilot lab: exterior preview only. Learning activities remain to be designed. Visit Communication to play Relay Rescue.');
   }
   if (focus) {
     if (play) {
@@ -724,3 +724,4 @@ view3d.addEventListener('material-ready',()=>{
 });
 }
 void startWorld();
+
