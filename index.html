@@ -71,6 +71,22 @@ html[data-embed][data-activity-open] aside{display:block}
 .portfolio-entry time{color:#c9e0da;font-size:.86rem}
 .portfolio-entry summary{cursor:pointer;margin-top:.45rem;color:#abf3d6}
 .portfolio-entry dt{font-weight:700;margin-top:.5rem}
+
+html[data-play],html[data-play] body{height:100%;overflow:hidden}
+html[data-play] body>header,html[data-play] #local-preview{display:none}
+html[data-play] main{display:block;position:relative;max-width:none;padding:0;height:100dvh}
+html[data-play] .world{height:100%;border:0;border-radius:0;box-shadow:none}
+html[data-play] canvas,html[data-play] #studio-scene,html[data-play] #studio-scene img{width:100%;height:100%}
+html[data-play] #studio-scene figcaption{display:none}
+html[data-play] #world-controls{position:absolute;bottom:1rem;left:1rem;padding:0;background:none}
+html[data-play] #world-controls>*{display:none}
+html[data-play] #world-controls [aria-label="Movement"]{display:flex;margin:0;gap:.35rem}
+html[data-play] [data-move],html[data-play] #enter:disabled,html[data-play][data-play-activity] #world-controls{display:none}
+html[data-play] #position{display:block;position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+html[data-play] #activity-panel{display:none;position:absolute;inset:1rem 1rem auto auto;width:min(28rem,calc(100% - 2rem));max-height:calc(100% - 2rem);overflow:auto;overscroll-behavior:contain;background:#14232df5}
+html[data-play][data-play-activity] #activity-panel{display:block}
+.play-close{float:right;margin-left:.5rem}
+@media(pointer:coarse){html[data-play] [data-move]{display:inline-block}}
 </style>
 <header><div><div class="tag">SKILLSVILLE / COASTAL EXPEDITION</div><h1>SKILLQUEST</h1></div><span id="reward" role="status">0 expedition stamps</span></header>
 <p id="local-preview" hidden><strong>Local preview.</strong> Opening this file directly can leave out textures for stone, plants and reflections. <a href="https://taniab1975.github.io/skillquest/">Open the full live world</a> or <a href="https://taniab1975.github.io/skillquest/index.html?view=overview">see the island-wide rollout</a>.</p>
@@ -96,8 +112,11 @@ if (layout === "arrival-study") {
       activity.focus();
     }
   });
-} else if (location.protocol === "file:") {
+} else if (layout !== "overview") {
+  document.documentElement.dataset.play = "";
+}
+if (location.protocol === "file:" && layout === "overview") {
   document.getElementById("local-preview").hidden = false;
 }
 </script>
-<script src="south-dock-mesh.js"></script><script src="lab-exteriors.js?v=lab-studios"></script><script src="districts.js?v=lab-studios"></script><script src="island.js?v=lab-studios"></script><script src="world.js?v=portfolio-growth-20261112"></script></html>
+<script src="south-dock-mesh.js"></script><script src="lab-exteriors.js?v=lab-studios"></script><script src="districts.js?v=lab-studios"></script><script src="island.js?v=lab-studios"></script><script src="world.js?v=immersive-play"></script></html>
