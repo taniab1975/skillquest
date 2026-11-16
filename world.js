@@ -144,7 +144,8 @@ function approachCommunication() {
   angle=0;
   Object.assign(avatar,{x,z:z+4.4,facing:-1,heading:0});
   update();
-  byId('enter').focus();
+  if (play) closePlayActivity();
+  else byId('enter').focus();
 }
 function labDirectory() {
   const directory=add('details','');
