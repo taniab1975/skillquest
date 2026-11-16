@@ -55,11 +55,13 @@ try {
   console.warn('WebGL renderer unavailable', error);
 }
 const view = new URLSearchParams(location.search).get('view');
-if (view === 'arrival-study') {
-  const arrivalCanvas = island ? view3d : canvas;
+const play = document.documentElement.hasAttribute('data-play');
+const playCanvas = island ? view3d : canvas;
+if (play || view === 'arrival-study') {
+  const arrivalCanvas = playCanvas;
   arrivalCanvas.tabIndex = 0;
   arrivalCanvas.removeAttribute('aria-hidden');
-  arrivalCanvas.setAttribute('aria-label','Skillsville arrival view. Use arrow keys to walk.');
+  arrivalCanvas.setAttribute('aria-label','Skillsville. Use arrow keys or WASD to walk and Enter to visit a nearby building.');
 }
 let overview = view === 'overview';
 let angle = 0;
@@ -164,6 +166,11 @@ function labDirectory() {
     add('small',theme.meaning,name);
   }
 }
+function closePlayActivity() {
+  document.documentElement.removeAttribute('data-play-activity');
+  if (insideStudio) openPlace(0, false);
+  playCanvas.focus({preventScroll:true});
+}
 function openPlace(index, focus = true) {
   if (index !== 2) studioView = 'welcome';
   insideStudio = index === 2;
@@ -204,6 +211,15 @@ function openPlace(index, focus = true) {
     add('p','Exterior preview. Visit Communication to play Relay Rescue.');
   }
   if (focus) {
+    if (play) {
+      document.documentElement.dataset.playActivity = '';
+      const activityPanel = byId('activity-panel');
+      if (!activityPanel.querySelector('.play-close')) {
+        const close = button('Back to island', closePlayActivity, activityPanel);
+        close.className = 'play-close';
+        activityPanel.prepend(close);
+      }
+    }
     const activity = byId('embed-activity');
     if (view === 'embed' && activity?.getAttribute('aria-expanded') === 'false') activity.click();
     byId('title').focus();
@@ -461,6 +477,13 @@ document.querySelectorAll('[data-move]').forEach(control => {
 });
 const keys = {arrowup:[0,-1], w:[0,-1], arrowdown:[0,1], s:[0,1], arrowleft:[-1,0], a:[-1,0], arrowright:[1,0], d:[1,0]};
 document.addEventListener('keydown', event => {
+  if (play && document.documentElement.hasAttribute('data-play-activity')) {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closePlayActivity();
+    }
+    return;
+  }
   if (insideStudio || event.ctrlKey || event.metaKey || event.altKey || event.target.closest('button,select,textarea,input,.portfolio-scroll,summary')) return;
   const direction = keys[event.key.toLowerCase()];
   if (direction) {
