@@ -188,8 +188,8 @@ function openPlace(index, focus = true) {
   if (index !== 2) studioView = 'welcome';
   insideStudio = index === 2;
   if (focus && places[index][4]) lastDoor = index;
+  routeMap?.finish(index);
   if (insideStudio) {
-    routeMap?.finish();
     const studioArt = byId('studio-art');
     if (!studioArt.hasAttribute('src')) studioArt.src=studioArt.dataset.src;
   }
@@ -362,10 +362,11 @@ function studio() {
   if (studioView === 'discover') communicationWorkshop(panel, {add, button, startRelay: () => showStudio('practise')});
   if (studioView === 'practise') mission();
   if (studioView === 'evidence') reflection();
-  button('Return to the plaza', () => {
-    travel(10);
-    arrivalGuide?.offerPortfolio();
-  }).className = 'quiet';
+  if (play || view === 'embed') {
+    button('Leave the lab', () => play ? closePlayActivity() : byId('embed-activity').click()).className = 'quiet';
+  } else {
+    button('Return to the plaza', () => travel(10)).className = 'quiet';
+  }
 }
 
 function showStudio(view) {
@@ -503,7 +504,7 @@ function nearby() {
 }
 function update() {
   const index = nearby();
-  routeMap?.update(avatar,index === 2);
+  routeMap?.update(avatar);
   const message = index < 0 ? (avatar.z > 22 ? 'On South Dock · walk north to Discovery Plaza' : 'On the island trail') : 'At the entrance to ' + places[index][0];
   if (byId('position').textContent !== message) byId('position').textContent = message;
   const enter = byId('enter');
@@ -578,7 +579,7 @@ async function selectGuide(name) {
 }
 
 function guideFrame(player, time) {
-  const target = routeMap?.next(player);
+  const target = routeMap?.next();
   if (insideStudio || (!guideReady && !target)) return null;
   let x = player.x, z = player.z;
   const sideX = Math.cos(angle)*.86, sideZ = -Math.sin(angle)*.86;
@@ -592,7 +593,7 @@ function guideFrame(player, time) {
     break;
   }
   let hint;
-  if (target) {
+  if (target && Math.hypot(target[0]-player.x,target[1]-player.z)>.05) {
     const dx = target[0]-player.x, dz = target[1]-player.z;
     const distance = Math.hypot(dx,dz);
     const step = Math.min(.85,2.65/distance);
@@ -810,15 +811,16 @@ update();
 byId('world-controls').inert = false;
 if (play || view === 'embed') {
   routeMap = createSkillsvilleMap(places,coastline,hasDock);
-  byId('map-toggle').addEventListener('click', () => routeMap.update(avatar,nearby() === 2));
+  byId('map-toggle').addEventListener('click', () => routeMap.update(avatar));
+  function startWalkingRoute(destination) {
+    routeMap.start(destination,avatar);
+    playCanvas.focus({preventScroll:true});
+    update();
+  }
   arrivalGuide = createArrivalGuide({
     onSelect: selectGuide,
-    onExplore: () => {
-      routeMap.start();
-      playCanvas.focus({preventScroll:true});
-      update();
-    },
-    onPortfolio: () => travel(1),
+    onExplore: () => startWalkingRoute(2),
+    onPortfolio: () => startWalkingRoute(1),
     onClose: () => byId('your-guide').focus({preventScroll:true}),
   });
   byId('embed-activity').addEventListener('activity-closed', () => {

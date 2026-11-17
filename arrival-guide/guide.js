@@ -13,7 +13,7 @@ window.createArrivalGuide = function ({ onExplore, onSelect, onPortfolio, onClos
     'We’re also planning a Learner Log so you can record time spent on lab and portfolio activities and see your progress towards a proposed 55-hour target. You’ll be able to make your portfolio look the way you want and export a PDF to keep.',
     'For now, let’s visit the Communication Skills Lab. It’s an early version you can try today. I’ll meet you outside when you’re done.',
   ];
-  const followUp = ['Ready to try a portfolio entry? I can take you to My Portfolio.'];
+  const followUp = ['Ready to try a portfolio entry? Follow me to My Portfolio. We’ll walk past Discovery Plaza, then straight through the archive doorway.'];
   let selected;
   try { selected = localStorage.getItem(storageKey); } catch {}
   if (!names.includes(selected)) selected = undefined;
@@ -68,8 +68,8 @@ window.createArrivalGuide = function ({ onExplore, onSelect, onPortfolio, onClos
       content.append(p);
     }
     if (afterLab) {
-      action('Go to My Portfolio', () => {
-        dialog.close('travel');
+      action('Walk to My Portfolio', () => {
+        dialog.close('walk');
         onPortfolio();
       }).className = 'primary';
       action('Keep exploring', () => dialog.close());
@@ -85,7 +85,7 @@ window.createArrivalGuide = function ({ onExplore, onSelect, onPortfolio, onClos
   }
 
   dialog.addEventListener('close', () => {
-    if (!['travel','walk'].includes(dialog.returnValue)) onClose();
+    if (dialog.returnValue !== 'walk') onClose();
     dialog.returnValue = '';
   });
   dialog.addEventListener('keydown', event => event.stopPropagation());

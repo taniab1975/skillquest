@@ -9,12 +9,15 @@ window.createSkillsvilleMap = function (places, coast, hasDock) {
   const width = 264, height = 244;
   const point = (x,z) => [132+x*4.55,103+z*3.95];
   const [,labX,labZ] = places[2];
-  const entrance = [labX,labZ+4.4];
-  const origin = [0,hasDock ? 29 : 19];
-  const junction = [0,entrance[1]];
-  const stops = [junction,entrance];
+  const [,portfolioX,portfolioZ] = places[1];
+  const labTurn = labZ+4.4;
+  const labStops = [[0,labTurn],[labX,labTurn],[labX,labZ+4.15]];
+  let origin = [0,hasDock ? 29 : 19];
+  let stops = labStops;
+  let destination = 2;
   let active = false;
   let leg = 0;
+  let routeDone = false;
 
   function toggleMap(open) {
     panel.hidden = !open;
@@ -22,15 +25,15 @@ window.createSkillsvilleMap = function (places, coast, hasDock) {
   }
   toggle.hidden = false;
   toggle.onclick = () => toggleMap(panel.hidden);
-  let routeDone = false;
-  function update(avatar, atLab) {
-    if (active && avatar.z <= junction[1]+.55) leg = 1;
-    if (active && atLab) leg = 1;
+  function update(avatar) {
+    if (active && leg < stops.length-1 && Math.hypot(stops[leg][0]-avatar.x,stops[leg][1]-avatar.z)<.85) leg++;
     if (panel.hidden) return;
+    const name = places[destination][0];
     const current = active
-      ? atLab ? 'Walk straight through the lab doorway.' : leg === 0
-        ? 'Walk north off South Dock.' : 'Follow the arrows to the lab entrance.'
-      : routeDone ? 'Communication Skills Lab' : 'South Dock and the Skillsville campus';
+      ? leg === stops.length-1 ? 'Walk straight through the doorway to '+name+'.'
+        : destination === 2 && leg === 0 ? 'Walk north off South Dock.'
+        : 'Follow the arrows to '+name+'.'
+      : routeDone ? name : 'South Dock and the Skillsville campus';
     if (instruction.textContent !== current) instruction.textContent = current;
     ctx.setTransform(2,0,0,2,0,0);
     ctx.fillStyle = '#173c50';
@@ -68,20 +71,30 @@ window.createSkillsvilleMap = function (places, coast, hasDock) {
       ctx.fillText(text,left+dx,top+dy);
     }
     label('Discovery Plaza',0,0,'#ecf6ef');
-    label('My Portfolio',0,-17,'#ffd99c');
-    label('Communication Lab',labX,labZ,'#b8ff91',-72,-8);
+    label('My Portfolio',portfolioX,portfolioZ,destination === 1 ? '#b8ff91' : '#ffd99c');
+    label('Communication Lab',labX,labZ,destination === 2 ? '#b8ff91' : '#ecf6ef',-72,-8);
     if (hasDock) label('South Dock',0,27,'#ecf6ef',-70,8);
     label('You',avatar.x,avatar.z,'#fff',8,12);
   }
 
   return {
     update,
-    start() { active = true; routeDone = false; leg = 0; toggleMap(true); },
-    finish() { active = false; routeDone = true; },
-    next(avatar) {
-      if (!active) return null;
-      const target = stops[leg];
-      return Math.hypot(target[0]-avatar.x,target[1]-avatar.z) > .65 ? target : null;
+    start(index, avatar) {
+      origin = [avatar.x,avatar.z];
+      destination = index;
+      stops = index === 1
+        ? [[0,Math.round(labTurn)],[0,4],[3,4],[3,-10],[portfolioX,-10],[portfolioX,portfolioZ+3.5],[portfolioX,portfolioZ+2.25]]
+        : labStops;
+      active = true;
+      routeDone = false;
+      leg = 0;
+      toggleMap(true);
     },
+    finish(index) {
+      if (index !== destination) return;
+      active = false;
+      routeDone = true;
+    },
+    next() { return active ? stops[leg] : null; },
   };
 };
