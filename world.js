@@ -144,8 +144,13 @@ function approachCommunication() {
   angle=0;
   Object.assign(avatar,{x,z:z+4.4,facing:-1,heading:0});
   update();
-  if (play) closePlayActivity();
-  else byId('enter').focus();
+  if (play) {
+    closePlayActivity();
+  } else {
+    const activity = byId('embed-activity');
+    if (view === 'embed' && activity?.getAttribute('aria-expanded') === 'true') activity.click();
+    byId('enter').focus({preventScroll:true});
+  }
 }
 function labDirectory() {
   const directory=add('details','');
