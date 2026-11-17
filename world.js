@@ -332,15 +332,14 @@ const challenges = [
 ];
 function studio() {
   const descriptions = {
-    welcome: 'A delivery drone is waiting on the far side of the island. From this studio, crews listen, make a plan and check that their message got through.',
-    discover: 'Communication means making yourself understood and understanding others. Choose words that fit the person and situation, listen for what they heard, and check back when it matters.',
+    welcome: 'Explore how people communicate at work, spot what can go wrong and practise a workplace handover.',
   };
   if (descriptions[studioView]) add('p', descriptions[studioView]);
   const choices = add('div', '');
   choices.className = 'studio-choices';
   for (const [view, name, hint] of [
-    ['discover', 'Discover', 'See the skill in everyday life'],
-    ['practise', 'Practise', 'Take on Relay Rescue'],
+    ['discover', 'Discover', 'Start the workplace mini-workshop'],
+    ['practise', 'Practise', 'Optional · Relay Rescue with Kai'],
     ['evidence', 'My Portfolio', 'Record a STAR example'],
   ]) {
     const control = button(name, () => showStudio(view), choices);
@@ -348,13 +347,7 @@ function studio() {
     control.setAttribute('aria-label', name);
     control.setAttribute('aria-pressed', String(studioView === view));
   }
-  if (studioView === 'discover') {
-    add('h3', 'One skill, different situations');
-    const list = add('ul', '');
-    add('li', 'At work, show a new teammate where supplies go and ask them to explain the steps back.', list);
-    add('li', 'At sport, listen to what a teammate saw before deciding what the team should try next.', list);
-    add('li', 'At home, change how you explain a task when someone is unfamiliar with it.', list);
-  }
+  if (studioView === 'discover') communicationWorkshop(panel, {add, button, startRelay: () => showStudio('practise')});
   if (studioView === 'practise') mission();
   if (studioView === 'evidence') reflection();
   button('Return to the plaza', () => travel(10)).className = 'quiet';

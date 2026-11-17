@@ -1,0 +1,34 @@
+.communication-workshop { display:grid; gap:.7rem; margin:1rem 0; }
+.communication-workshop [hidden] { display:none !important; }
+.communication-workshop nav { display:flex; flex-wrap:wrap; gap:.35rem; }
+.communication-workshop nav button { min-height:36px; padding:.35rem .55rem; font-size:.85rem; }
+.communication-workshop nav [aria-current="step"] { border-color:#a6f5cf; color:#a6f5cf; }
+.communication-workshop video { display:block; width:100%; aspect-ratio:16 / 9; background:#11282f; border-radius:.65rem; }
+.communication-workshop details { margin:.7rem 0; }
+.workshop-picture { position:relative; aspect-ratio:640 / 330; min-height:150px; border:1px solid #65928c; border-radius:.7rem; background-size:100% 100%; }
+.workshop-cafe { background-image:url("communication-cafe.png"); }
+.workshop-stockroom { background-image:url("communication-stockroom.png"); }
+.workshop-picture button { position:absolute; transform:translate(-50%,-50%); min-height:44px; max-width:38%; padding:.22rem .35rem; line-height:1.12; font-size:.76rem; background:#12242df0; border-color:#a9d2c6; }
+.workshop-cafe button:nth-child(1) { left:23%; top:27%; }
+.workshop-cafe button:nth-child(2) { left:53%; top:53%; }
+.workshop-cafe button:nth-child(3) { left:83%; top:68%; }
+.workshop-stockroom button:nth-child(1) { left:20%; top:51%; }
+.workshop-stockroom button:nth-child(2) { left:53%; top:75%; }
+.workshop-stockroom button:nth-child(3) { left:82%; top:22%; }
+.workshop-perspective { display:grid; place-items:center; min-height:120px; border:1px solid #82a9a1; border-radius:.7rem; background:repeating-linear-gradient(0deg,#33525a 0 19px,#48636a 20px 21px); }
+.workshop-mark { color:#f4f5dc; font:700 4rem/1 system-ui,sans-serif; transition:transform .26s ease; }
+.workshop-mark.other-side { transform:rotate(180deg); }
+.workshop-feedback:empty { display:none; }
+.workshop-feedback { padding:.65rem .8rem; border-radius:.6rem; background:#32454b; }
+.workshop-success, .communication-workshop .workshop-correct { background:#a6f5cf; color:#132521; }
+.workshop-success { animation:workshop-celebrate .5s ease-out; }
+.workshop-success::before { content:'✦  '; }
+@keyframes workshop-celebrate {
+  0% { transform:scale(.96); box-shadow:0 0 0 0 #a6f5cfaa; }
+  55% { transform:scale(1.025); }
+  100% { transform:scale(1); box-shadow:0 0 0 9px #a6f5cf00; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .workshop-success { animation:none; }
+  .workshop-mark { transition:none; }
+}
