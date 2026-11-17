@@ -132,7 +132,7 @@ function communicationWorkshop(parent, {add, button, startRelay}) {
     video.addEventListener('error', () => {
       videoStatus.textContent = 'The video could not load. You can read the transcript and continue.';
     });
-    video.src = 'communication-intro.mp4?v=caption-fit';
+    video.src = 'communication-intro.mp4?v=silent-intro';
     next('Start picture checks', () => show(1));
   }
 
