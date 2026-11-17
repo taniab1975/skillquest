@@ -61,11 +61,12 @@ let arrivalGuide;
 let routeMap;
 let guideLoading;
 let guideReady = false;
+let lastDoor = -1;
 if (play || view === 'embed' || view === 'arrival-study') {
   const arrivalCanvas = playCanvas;
   arrivalCanvas.tabIndex = 0;
   arrivalCanvas.removeAttribute('aria-hidden');
-  arrivalCanvas.setAttribute('aria-label','Skillsville. Use arrow keys or WASD to walk and Enter to visit a nearby building.');
+  arrivalCanvas.setAttribute('aria-label','Skillsville. Use arrow keys or WASD to walk and walk through doorways to enter buildings.');
 }
 let overview = view === 'overview';
 let angle = 0;
@@ -186,6 +187,7 @@ function closePlayActivity() {
 function openPlace(index, focus = true) {
   if (index !== 2) studioView = 'welcome';
   insideStudio = index === 2;
+  if (focus && places[index][4]) lastDoor = index;
   if (insideStudio) {
     routeMap?.finish();
     const studioArt = byId('studio-art');
@@ -460,9 +462,34 @@ function canWalk(x,z) {
   })) return false;
   return true;
 }
+function doorway(index) {
+  const [,x,z] = places[index];
+  const front = index === 0 ? 3.65 : index === 1 ? archivePavilion.depth+.17
+    : index === 2 ? 4.35 : labSites[index].bounds[1]+labSites[index].bounds[3]+.13;
+  return [x,z+front];
+}
+function walkInDoor(x,z) {
+  if ((!play && view !== 'embed') || z >= avatar.z) return -1;
+  return places.findIndex(([, , , , levels], index) => {
+    if (!levels || index === lastDoor) return false;
+    const [doorX,doorZ] = doorway(index);
+    return Math.abs(x-doorX) <= 1.2 && avatar.z >= doorZ-.55 && z <= doorZ && z >= doorZ-1.6;
+  });
+}
 function walk(dx, dz) {
   const x = avatar.x + dx, z = avatar.z + dz;
+  const entrance = walkInDoor(x,z);
+  if (entrance >= 0) {
+    movement = null;
+    openPlace(entrance);
+    update();
+    return;
+  }
   if (!canWalk(x,z)) return;
+  if (lastDoor >= 0) {
+    const [doorX,doorZ] = doorway(lastDoor);
+    if (Math.abs(x-doorX)>1.4 || Math.abs(z-doorZ)>1.65) lastDoor = -1;
+  }
   const now = performance.now();
   const previous = movement && motionEnabled() ? sampleStep(now) : avatar;
   const strideDistance = Math.min(.56,Math.hypot(x-previous.x,z-previous.z)*.5);

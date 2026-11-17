@@ -28,7 +28,7 @@ window.createSkillsvilleMap = function (places, coast, hasDock) {
     if (active && atLab) leg = 1;
     if (panel.hidden) return;
     const current = active
-      ? atLab ? 'Enter the Communication Skills Lab.' : leg === 0
+      ? atLab ? 'Walk straight through the lab doorway.' : leg === 0
         ? 'Walk north off South Dock.' : 'Follow the arrows to the lab entrance.'
       : routeDone ? 'Communication Skills Lab' : 'South Dock and the Skillsville campus';
     if (instruction.textContent !== current) instruction.textContent = current;

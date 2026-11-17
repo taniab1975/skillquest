@@ -27,12 +27,7 @@ window.createArrivalGuide = function ({ onExplore, onSelect, onPortfolio, onClos
     return control;
   }
 
-  function stopSpeech() {
-    if ('speechSynthesis' in window) speechSynthesis.cancel();
-  }
-
   function show(heading) {
-    stopSpeech();
     title.textContent = heading;
     content.replaceChildren();
     if (!dialog.open) dialog.showModal();
@@ -72,14 +67,6 @@ window.createArrivalGuide = function ({ onExplore, onSelect, onPortfolio, onClos
       p.textContent = line;
       content.append(p);
     }
-    if ('speechSynthesis' in window) {
-      action(afterLab ? 'Hear your helper' : 'Hear the welcome', () => {
-        speechSynthesis.cancel();
-        const speech = new SpeechSynthesisUtterance(lines.join(' '));
-        speech.lang = 'en-AU';
-        speechSynthesis.speak(speech);
-      });
-    }
     if (afterLab) {
       action('Go to My Portfolio', () => {
         dialog.close('travel');
@@ -98,7 +85,6 @@ window.createArrivalGuide = function ({ onExplore, onSelect, onPortfolio, onClos
   }
 
   dialog.addEventListener('close', () => {
-    stopSpeech();
     if (!['travel','walk'].includes(dialog.returnValue)) onClose();
     dialog.returnValue = '';
   });
