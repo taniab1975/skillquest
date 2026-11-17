@@ -1594,7 +1594,15 @@ function createIsland(canvas, places, assets = {}) {
     }
     return distance;
   }
-  return (avatar,overview,angle=0,stride=0,time=0)=>{
+  const flatGuideArrow = [
+    [-.13,0,.23],[.13,0,.23],[.13,0,0],[-.13,0,0],
+    [-.31,0,0],[.31,0,0],[0,0,-.43],
+  ];
+  quad(...flatGuideArrow.slice(0,4),'#b8ff91',false);
+  tri(...flatGuideArrow.slice(4),'#b8ff91',false);
+  const guideArrow = mesh();
+  let guideModel;
+  function drawIsland(avatar,overview,angle=0,stride=0,time=0,guide=null) {
     const {width,height}=canvas.getBoundingClientRect();
     if(!width||!height) return;
     const scale=Math.min(devicePixelRatio,2);
@@ -1685,6 +1693,11 @@ function createIsland(canvas, places, assets = {}) {
         render(explorer.arms[index],[avatar.x,ground+bounce,avatar.z],heading,warm,-side*stride*.21,0,1.37);
       }
     }
+    if (guide && !overview) {
+      const {x,z,heading,bob,hint} = guide;
+      if (guideModel) render(guideModel,[x,terraceHeight(x,z)+.85+bob,z],heading);
+      if (hint) render(guideArrow,[hint.x,terraceHeight(hint.x,hint.z)+.25,hint.z],hint.heading);
+    }
     if (windows || districtWindows.count) {
       gl.enable(gl.BLEND);
       gl.blendFuncSeparate(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA,gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
@@ -1695,5 +1708,15 @@ function createIsland(canvas, places, assets = {}) {
       gl.depthMask(true);
       gl.disable(gl.BLEND);
     }
+  }
+  drawIsland.setGuideModel = data => {
+    if (guideModel) gl.deleteBuffer(guideModel.buffer);
+    guideModel = null;
+    if (!data?.length) return;
+    const buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
+    gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW);
+    guideModel = {buffer,count:data.length/7};
   };
+  return drawIsland;
 }

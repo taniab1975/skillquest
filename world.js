@@ -57,7 +57,11 @@ try {
 const view = new URLSearchParams(location.search).get('view');
 const play = document.documentElement.hasAttribute('data-play');
 const playCanvas = island ? view3d : canvas;
-if (play || view === 'arrival-study') {
+let arrivalGuide;
+let routeMap;
+let guideLoading;
+let guideReady = false;
+if (play || view === 'embed' || view === 'arrival-study') {
   const arrivalCanvas = playCanvas;
   arrivalCanvas.tabIndex = 0;
   arrivalCanvas.removeAttribute('aria-hidden');
@@ -174,13 +178,16 @@ function labDirectory() {
 }
 function closePlayActivity() {
   document.documentElement.removeAttribute('data-play-activity');
-  if (insideStudio) openPlace(0, false);
+  const leavingLab = insideStudio;
+  if (leavingLab) openPlace(0, false);
   playCanvas.focus({preventScroll:true});
+  if (leavingLab) arrivalGuide?.offerPortfolio();
 }
 function openPlace(index, focus = true) {
   if (index !== 2) studioView = 'welcome';
   insideStudio = index === 2;
   if (insideStudio) {
+    routeMap?.finish();
     const studioArt = byId('studio-art');
     if (!studioArt.hasAttribute('src')) studioArt.src=studioArt.dataset.src;
   }
@@ -232,6 +239,9 @@ function openPlace(index, focus = true) {
   }
 }
 function gallery() {
+  const entry = add('details', '');
+  add('summary', 'Write a STAR entry', entry);
+  reflection(entry);
   const source = add('div', '');
   const order = add('div', '');
   const content = add('div', '');
@@ -350,7 +360,10 @@ function studio() {
   if (studioView === 'discover') communicationWorkshop(panel, {add, button, startRelay: () => showStudio('practise')});
   if (studioView === 'practise') mission();
   if (studioView === 'evidence') reflection();
-  button('Return to the plaza', () => travel(10)).className = 'quiet';
+  button('Return to the plaza', () => {
+    travel(10);
+    arrivalGuide?.offerPortfolio();
+  }).className = 'quiet';
 }
 
 function showStudio(view) {
@@ -391,10 +404,10 @@ function mission() {
   button('Record in My Portfolio', () => showStudio('evidence')).className = 'primary';
 }
 
-function reflection() {
-  add('h3', 'Take it into your world');
-  add('p', 'Recall a real time you explained something, listened or checked understanding. For this demo, enter a fictional example.');
-  const form = add('form', '');
+function reflection(parent = panel) {
+  add('h3', 'Take it into your world', parent);
+  add('p', 'Recall a real time you explained something, listened or checked understanding. For this demo, enter a fictional example.', parent);
+  const form = add('form', '', parent);
   const prompts = ['Where were you and what was happening?', 'What did you need to communicate?', 'What did you say, do or check?', 'What happened? What might you try next time?'];
   for (const [index, field] of fields.entries()) {
     const label = add('label', field + ' · ' + prompts[index], form);
@@ -433,19 +446,23 @@ function travel(index) {
   openPlace(index);
   update();
 }
-function walk(dx, dz) {
-  const x = avatar.x + dx, z = avatar.z + dz;
+function canWalk(x,z) {
   const onIsland = coastline ? insideIslandShore(x,z,coastline) : Math.abs(x)<=18 && z>=-21 && z<=21;
   const onDock = hasDock && z>21 && z<=33 && Math.abs(x)<=2.28*dockBridgeScale(z)-.27;
-  if (!onIsland && !onDock) return;
-  if (hasDock && isDockTree(x,z)) return;
-  if (island && districtGardenBlocks(x,z)) return;
+  if (!onIsland && !onDock) return false;
+  if (hasDock && isDockTree(x,z)) return false;
+  if (island && districtGardenBlocks(x,z)) return false;
   if (places.some(([, bx, bz,, levels], index) => {
     if (!levels) return false;
     if (index === 2) return Math.hypot((x-bx)/5.05,(z-bz)/3.9) < 1;
     if (index === 0) return Math.hypot((x-bx)/4.48,(z-bz)/3.55) < 1;
     return island ? pavilionBlocks(index,x-bx,z-bz) : Math.abs(x-bx)<2.5 && Math.abs(z-bz)<2.5;
-  })) return;
+  })) return false;
+  return true;
+}
+function walk(dx, dz) {
+  const x = avatar.x + dx, z = avatar.z + dz;
+  if (!canWalk(x,z)) return;
   const now = performance.now();
   const previous = movement && motionEnabled() ? sampleStep(now) : avatar;
   const strideDistance = Math.min(.56,Math.hypot(x-previous.x,z-previous.z)*.5);
@@ -459,6 +476,7 @@ function nearby() {
 }
 function update() {
   const index = nearby();
+  routeMap?.update(avatar,index === 2);
   const message = index < 0 ? (avatar.z > 22 ? 'On South Dock · walk north to Discovery Plaza' : 'On the island trail') : 'At the entrance to ' + places[index][0];
   if (byId('position').textContent !== message) byId('position').textContent = message;
   const enter = byId('enter');
@@ -476,6 +494,7 @@ document.querySelectorAll('[data-move]').forEach(control => {
 });
 const keys = {arrowup:[0,-1], w:[0,-1], arrowdown:[0,1], s:[0,1], arrowleft:[-1,0], a:[-1,0], arrowright:[1,0], d:[1,0]};
 document.addEventListener('keydown', event => {
+  if (byId('arrival-guide').open) return;
   if (play && document.documentElement.hasAttribute('data-play-activity')) {
     if (event.key === 'Escape') {
       event.preventDefault();
@@ -510,6 +529,54 @@ function tickWater(now) {
 }
 document.addEventListener('visibilitychange', draw);
 
+async function selectGuide(name) {
+  if (!island) return;
+  guideLoading?.abort();
+  const request = new AbortController();
+  guideLoading = request;
+  guideReady = false;
+  island.setGuideModel(null);
+  draw();
+  try {
+    const { loadGuideAvatar } = await import('./arrival-guide/avatar.js');
+    if (request.signal.aborted) return;
+    const vertices = await loadGuideAvatar(name.toLowerCase(), request.signal);
+    if (request.signal.aborted || !vertices?.length) return;
+    island.setGuideModel(vertices);
+    guideReady = true;
+    draw();
+  } catch (error) {
+    if (!request.signal.aborted) console.warn('Skillsville guide avatar failed to load.', error);
+  }
+}
+
+function guideFrame(player, time) {
+  const target = routeMap?.next(player);
+  if (insideStudio || (!guideReady && !target)) return null;
+  let x = player.x, z = player.z;
+  const sideX = Math.cos(angle)*.86, sideZ = -Math.sin(angle)*.86;
+  const aheadX = -Math.sin(angle)*.68, aheadZ = -Math.cos(angle)*.68;
+  for (const side of [1,-1]) {
+    const nextX = player.x+sideX*side+aheadX;
+    const nextZ = player.z+sideZ*side+aheadZ;
+    if (!canWalk(nextX,nextZ)) continue;
+    x = nextX;
+    z = nextZ;
+    break;
+  }
+  let hint;
+  if (target) {
+    const dx = target[0]-player.x, dz = target[1]-player.z;
+    const distance = Math.hypot(dx,dz);
+    const step = Math.min(.85,2.65/distance);
+    const rightX = -dz/distance*.48, rightZ = dx/distance*.48;
+    const nextX = player.x+dx*step, nextZ = player.z+dz*step;
+    const offset = canWalk(nextX+rightX,nextZ+rightZ) ? 1 : 0;
+    hint = {x:nextX+rightX*offset,z:nextZ+rightZ*offset,heading:Math.atan2(-dx,-dz)};
+  }
+  return {x,z,heading:angle+Math.sin(time*.0025)*.18,bob:Math.sin(time*.005)*.07,hint};
+}
+
 // Orthographic projection of real x/y/z geometry. The north-up camera has no rotation or motion effects.
 function draw() {
   if (island) {
@@ -517,18 +584,20 @@ function draw() {
     const now = performance.now();
     const nearWater=avatar.z>13 || avatar.z<-14 || Math.abs(avatar.x)>12;
     const animateWater = !insideStudio && !overview && nearWater && motionEnabled() && !document.hidden;
+    const animateGuide = guideReady && !insideStudio && !overview && motionEnabled() && !document.hidden;
+    const guideTime = animateGuide ? now : 0;
     const time = animateWater ? (now%120000)/1000 : 0;
     if (movement && motionEnabled() && !insideStudio) {
       const sample = sampleStep(now);
       if (sample.progress < 1) {
-        island(sample,overview,angle,Math.sin(sample.gaitPhase*Math.PI)*sample.swingSide,time);
+        island(sample,overview,angle,Math.sin(sample.gaitPhase*Math.PI)*sample.swingSide,time,guideFrame(sample,guideTime));
         animationFrame = requestAnimationFrame(draw);
         return;
       }
     }
     movement = null;
-    island(avatar,overview,angle,0,time);
-    if (animateWater) {
+    island(avatar,overview,angle,0,time,guideFrame(avatar,guideTime));
+    if (animateWater || animateGuide) {
       lastWaterFrame = now;
       animationFrame = requestAnimationFrame(tickWater);
     }
@@ -712,6 +781,25 @@ new ResizeObserver(draw).observe(island ? view3d : canvas);
 openPlace(0, false);
 update();
 byId('world-controls').inert = false;
+if (play || view === 'embed') {
+  routeMap = createSkillsvilleMap(places,coastline,hasDock);
+  byId('map-toggle').addEventListener('click', () => routeMap.update(avatar,nearby() === 2));
+  arrivalGuide = createArrivalGuide({
+    onSelect: selectGuide,
+    onExplore: () => {
+      routeMap.start();
+      playCanvas.focus({preventScroll:true});
+      update();
+    },
+    onPortfolio: () => travel(1),
+    onClose: () => byId('your-guide').focus({preventScroll:true}),
+  });
+  byId('embed-activity').addEventListener('activity-closed', () => {
+    if (!insideStudio) return;
+    openPlace(0, false);
+    arrivalGuide.offerPortfolio();
+  });
+}
 let materialPaint = 0;
 view3d.addEventListener('material-ready',()=>{
   if (materialPaint) return;
@@ -722,4 +810,3 @@ view3d.addEventListener('material-ready',()=>{
 });
 }
 void startWorld();
-

@@ -87,11 +87,33 @@ html[data-play] #activity-panel{display:none;position:absolute;inset:1rem 1rem a
 html[data-play][data-play-activity] #activity-panel{display:block}
 .play-close{float:right;margin-left:.5rem}
 @media(pointer:coarse){html[data-play] [data-move]{display:inline-block}}
+
+#arrival-guide{width:min(36rem,calc(100% - 2rem));max-height:calc(100dvh - 2rem);overflow:auto;border:1px solid #87b4a8;border-radius:1rem;background:#14232d;color:#eef7f4;padding:clamp(.9rem,3vw,1.5rem)}
+#arrival-guide::backdrop{background:#091820c9}
+#arrival-guide h2{margin:0 0 .8rem}
+.guide-content img,.guide-content canvas{width:128px;height:128px;object-fit:contain;display:block;background:none}
+.guide-content img[hidden]{display:none}
+.guide-content button{margin:.25rem .35rem .25rem 0}
+.guide-choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:.4rem}
+.guide-choices button{margin:0;display:grid;justify-items:center;gap:.2rem}
+.guide-choices img{width:min(100%,84px);height:auto;aspect-ratio:1}
+#your-guide,#map-toggle{position:absolute;z-index:3;top:.65rem}
+#your-guide{left:.65rem}
+#map-toggle{right:.65rem}
+html[data-embed] #map-toggle{right:6.65rem;min-height:36px}
+#route-map{position:absolute;z-index:2;top:3.75rem;right:.65rem;width:min(264px,52vw);background:#14232def;border:1px solid #87b4a8;border-radius:.75rem;overflow:hidden}
+#route-map canvas{width:100%;height:auto}
+#route-map p{margin:0;padding:.55rem .65rem;font-size:.82rem;color:#eef7f4}
+html[data-play][data-play-activity] :is(#map-toggle,#route-map),
+html[data-embed][data-activity-open] :is(#map-toggle,#route-map){display:none}
+html[data-play][data-play-activity] #your-guide,html[data-embed][data-activity-open] #your-guide{display:none}
 </style>
 <link rel="stylesheet" href="communication-workshop.css">
 <header><div><div class="tag">SKILLSVILLE / COASTAL EXPEDITION</div><h1>SKILLQUEST</h1></div><span id="reward" role="status">0 expedition stamps</span></header>
 <p id="local-preview" hidden><strong>Local preview.</strong> Opening this file directly can leave out textures for stone, plants and reflections. <a href="https://taniab1975.github.io/skillquest/">Open the full live world</a> or <a href="https://taniab1975.github.io/skillquest/index.html?view=overview">see the island-wide rollout</a>.</p>
-<main><section class="world" aria-label="Explore the island"><canvas id="view3d" aria-hidden="true"></canvas><canvas id="scene" aria-hidden="true"></canvas><figure id="studio-scene" hidden><img id="studio-art" data-src="studio.jpg" alt="Communication Skills Lab with curved ceramic arches, a glass seaward wall and a glowing relay globe"><figcaption>Communication Skills Lab · Relay operations</figcaption></figure><div id="world-controls" class="controls" inert><a href="proposal.html">SkillQuest proposal</a> <button id="look" hidden>Rotate view</button> <button id="camera" hidden aria-pressed="false">Island overview</button> <button id="still-view" hidden aria-pressed="false">Still view</button><p id="position" role="status">Loading South Dock…</p><div class="row" aria-label="Movement"><button data-move="0,-1" aria-label="Walk north">↑</button><button data-move="-1,0" aria-label="Walk west">←</button><button data-move="0,1" aria-label="Walk south">↓</button><button data-move="1,0" aria-label="Walk east">→</button><button id="enter" class="primary">Enter</button></div><div class="row"><label for="travel">Fast travel</label><select id="travel"></select><button id="go">Go</button></div><small>Arrow keys or WASD when the page is focused. Enter opens a nearby building. Fast travel reaches every entrance.</small></div></section><button type="button" id="embed-activity" aria-expanded="false" aria-controls="activity-panel" hidden>Activity</button><aside id="activity-panel"><div class="tag" id="label">ARRIVAL / SOUTH DOCK</div><h2 id="title" tabindex="-1">Orientation Hub</h2><div id="panel"></div></aside></main>
+<main><section class="world" aria-label="Explore the island"><canvas id="view3d" aria-hidden="true"></canvas><canvas id="scene" aria-hidden="true"></canvas><figure id="studio-scene" hidden><img id="studio-art" data-src="studio.jpg" alt="Communication Skills Lab with curved ceramic arches, a glass seaward wall and a glowing relay globe"><figcaption>Communication Skills Lab · Relay operations</figcaption></figure><div id="world-controls" class="controls" inert><a href="proposal.html">SkillQuest proposal</a> <button id="look" hidden>Rotate view</button> <button id="camera" hidden aria-pressed="false">Island overview</button> <button id="still-view" hidden aria-pressed="false">Still view</button><p id="position" role="status">Loading South Dock…</p><div class="row" aria-label="Movement"><button data-move="0,-1" aria-label="Walk north">↑</button><button data-move="-1,0" aria-label="Walk west">←</button><button data-move="0,1" aria-label="Walk south">↓</button><button data-move="1,0" aria-label="Walk east">→</button><button id="enter" class="primary">Enter</button></div><div class="row"><label for="travel">Fast travel</label><select id="travel"></select><button id="go">Go</button></div><small>Arrow keys or WASD when the page is focused. Enter opens a nearby building. Fast travel reaches every entrance.</small></div></section><button type="button" id="embed-activity" aria-expanded="false" aria-controls="activity-panel" hidden>Activity</button><aside id="activity-panel"><div class="tag" id="label">ARRIVAL / SOUTH DOCK</div><h2 id="title" tabindex="-1">Orientation Hub</h2><div id="panel"></div></aside><button type="button" id="your-guide" hidden>Your guide</button><button type="button" id="map-toggle" aria-expanded="false" aria-controls="route-map" hidden>Map</button><section id="route-map" aria-label="Skillsville map" hidden><canvas width="528" height="488" role="img" aria-label="North-up map of South Dock, Communication Skills Lab, Discovery Plaza and My Portfolio"></canvas><p role="status"></p></section></main>
+<dialog id="arrival-guide" aria-labelledby="guide-heading"><h2 id="guide-heading" tabindex="-1"></h2><div class="guide-content"></div></dialog>
+<script type="importmap">{"imports":{"three":"./arrival-guide/vendor/build/three.module.js","three/addons/":"./arrival-guide/vendor/examples/jsm/"}}</script>
 <script>
 const layout = new URLSearchParams(location.search).get("view");
 if (layout === "arrival-study") {
@@ -106,11 +128,16 @@ if (layout === "arrival-study") {
     activity.setAttribute("aria-expanded", String(open));
     activity.textContent = open ? "Close activity" : "Activity";
   }
-  activity.addEventListener("click", () => setActivity(activity.getAttribute("aria-expanded") !== "true"));
+  activity.addEventListener("click", () => {
+    const wasOpen = root.hasAttribute("data-activity-open");
+    setActivity(!wasOpen);
+    if (wasOpen) activity.dispatchEvent(new Event("activity-closed"));
+  });
   document.addEventListener("keydown", event => {
     if (event.key === "Escape" && root.hasAttribute("data-activity-open")) {
       setActivity(false);
       activity.focus();
+      activity.dispatchEvent(new Event("activity-closed"));
     }
   });
 } else if (layout !== "overview") {
@@ -120,5 +147,4 @@ if (location.protocol === "file:" && layout === "overview") {
   document.getElementById("local-preview").hidden = false;
 }
 </script>
-<script src="south-dock-mesh.js"></script><script src="lab-exteriors.js?v=recommended-eight"></script><script src="districts.js?v=lab-studios"></script><script src="island.js?v=lab-studios"></script><script src="communication-workshop.js?v=silent-intro"></script><script src="world.js?v=workplace-discover-20261117"></script></html>
-
+<script src="south-dock-mesh.js"></script><script src="lab-exteriors.js?v=recommended-eight"></script><script src="districts.js?v=lab-studios"></script><script src="island.js?v=walking-guide"></script><script src="communication-workshop.js?v=silent-intro"></script><script src="arrival-guide/map.js"></script><script src="arrival-guide/guide.js?v=walking-guide"></script><script src="world.js?v=walking-guide"></script></html>
