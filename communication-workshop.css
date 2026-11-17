@@ -32,3 +32,38 @@
   .workshop-success { animation:none; }
   .workshop-mark { transition:none; }
 }
+
+/* The first light interface pass applies to the Discover panel. */
+html #activity-panel:has(.communication-workshop) {
+  color-scheme:light;
+  background:#f5f0e6;
+  color:#203b39;
+  border-color:#c6d5ca;
+  box-shadow:0 12px 32px #162e3538;
+}
+#activity-panel:has(.communication-workshop) #label { color:#286451 !important; }
+#activity-panel:has(.communication-workshop) button {
+  background:#e5eee8;
+  color:#203b39;
+  border-color:#a1b9ae;
+}
+#activity-panel:has(.communication-workshop) button small { color:#42635b; }
+#activity-panel:has(.communication-workshop) button:is(:hover:not(:disabled),[aria-pressed=true],[aria-current="step"],.primary,.workshop-correct) {
+  background:#c8e8d6;
+  color:#163b30;
+  border-color:#5b917d;
+}
+#activity-panel:has(.communication-workshop) button:focus-visible,
+#activity-panel:has(.communication-workshop) summary:focus-visible {
+  outline:3px solid #286451;
+  outline-offset:2px;
+}
+#activity-panel .workshop-picture button { background:#fffdf7f5; }
+#activity-panel .workshop-feedback { background:#eee7da; color:#3a3e32; }
+#activity-panel .workshop-success { background:#c8e8d6; color:#163b30; }
+#activity-panel .communication-workshop video { background:#e5eee8; }
+html[data-embed]:has(.communication-workshop) #embed-activity {
+  background:#e5eee8;
+  color:#203b39;
+  border-color:#a1b9ae;
+}

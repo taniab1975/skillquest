@@ -1391,9 +1391,6 @@ function createIsland(canvas, places, assets = {}) {
   const dock = authoredDock ? decodeMesh(assets.southDockVertices) : null;
   const buildings = authoredBuildings ? decodeMesh(assets.arrivalBuildings) : null;
   const windows = assets.arrivalGlass?.length ? decodeMesh(assets.arrivalGlass) : null;
-  const explorer = assets.explorerBody?.length
-    ? {body:decodeMesh(assets.explorerBody),legs:[decodeMesh(assets.explorerLeft),decodeMesh(assets.explorerRight)],
-      arms:assets.explorerLeftArm?.length ? [decodeMesh(assets.explorerLeftArm),decodeMesh(assets.explorerRightArm)] : []} : null;
   function bakeShadows() {
     const size = Math.min(2048,gl.getParameter(gl.MAX_TEXTURE_SIZE));
     const texture = gl.createTexture();
@@ -1504,20 +1501,78 @@ function createIsland(canvas, places, assets = {}) {
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
   gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,createLabSignAtlas());
   gl.uniform1i(uniforms.labSignMap,6);
-  function pilot(color) {
-    shell(0,0,[[.46,.31],[1.04,.34],[1.11,.24]],color,16,.65);
-    shell(0,0,[[1.1,.2],[1.23,.255],[1.49,.25],[1.56,.15],[1.58,0]],cream,18,.91);
-    box(0,1.26,.19,.18,.14,.045,slate);
-    box(0,.59,.19,.19,.40,.10,'#8f7859');
-    box(0,.66,.29,.13,.22,.022,color);
-    box(-.35,.49,0,.085,.49,.105,color);
-    box(.35,.49,0,.085,.49,.105,color);
-    return mesh();
+  function buildExplorer() {
+    const sage = '#789b81', lightSage = '#a4b59a', mint = '#82c9af';
+    const charcoal = '#494744', boot = '#394942', sole = '#282f2c';
+    const skin = '#a86d4c', hair = '#402b22', pack = '#536252';
+    function rounded(x,y,z,rx,ry,rz,color) {
+      const profile = Array.from({length:11}, (_, i) => {
+        const angle = i * Math.PI / 10;
+        return [y - Math.cos(angle)*ry, Math.sin(angle)*rx];
+      });
+      shell(x,z,profile,color,18,rz/rx);
+    }
+
+    // Gathered jacket, soft hood and tucked-up chestnut hair.
+    shell(0,0,[[.93,.137],[.97,.186],[1.09,.187],[1.31,.197],[1.42,.182],[1.48,.112],[1.48,0]],sage,20,.69);
+    shell(0,.007,[[.925,.141],[.943,.182],[.979,.182],[.991,.149]],lightSage,20,.73);
+    rounded(0,.944,0,.164,.105,.119,charcoal);
+    rounded(0,1.45,.075,.155,.073,.113,lightSage);
+    rounded(0,1.465,.11,.119,.044,.079,sage);
+    rounded(0,1.49,-.012,.053,.081,.053,skin);
+    rounded(0,1.61,-.018,.102,.122,.096,skin);
+    for (const side of [-1,1]) rounded(side*.096,1.608,-.012,.018,.033,.023,skin);
+    rounded(0,1.658,.025,.107,.103,.101,hair);
+    rounded(.021,1.755,.055,.066,.056,.06,hair);
+    for (const [x,y,z,rx,ry] of [
+      [-.071,1.64,.09,.038,.054],[-.083,1.592,.068,.024,.039],[-.034,1.61,.106,.039,.06],
+      [.028,1.628,.111,.041,.055],[.076,1.632,.085,.031,.05],[.066,1.677,.078,.04,.045],
+      [-.037,1.7,.086,.042,.038],[.035,1.763,.086,.037,.038]
+    ]) rounded(x,y,z,rx,ry,.036,x>0?'#55382a':'#493025');
+
+    // Braced canvas pack with visible straps, flap, stitching and clasp.
+    for(const side of [-1,1]) {
+      rounded(side*.135,1.347,.025,.027,.116,.101,'#5f6656');
+      rounded(side*.129,1.257,-.106,.023,.107,.021,'#4c5446');
+      rounded(side*.115,1.144,.169,.026,.086,.027,'#b99871');
+    }
+    rounded(0,1.204,.175,.153,.173,.096,pack);
+    rounded(0,1.29,.24,.125,.081,.044,'#71816a');
+    rounded(0,1.147,.246,.111,.089,.045,'#667562');
+    for(const side of [-1,1]) {
+      rounded(side*.104,1.17,.265,.012,.085,.013,mint);
+      box(side*.096,1.105,.269,.021,.031,.012,'#b0a184');
+    }
+    rounded(0,1.229,.29,.025,.027,.009,'#bbab8b');
+    box(0,1.177,.289,.015,.042,.012,'#414b3f');
+    box(0,1.172,.30,.02,.022,.008,'#90bca2');
+    const body = mesh();
+
+    const legs = [-1,1].map(side => {
+      const x = side*.094, knee = -side*.11, ankle = -side*.19;
+      rounded(x,.699,knee*.48,.086,.226,.091,charcoal);
+      rounded(x,.509,knee,.082,.126,.085,'#524e49');
+      rounded(x,.342,(knee+ankle)*.5,.071,.179,.074,charcoal);
+      box(x+side*.058,.563,knee*.8,.032,.14,.065,'#5c5650');
+      rounded(x,.188,ankle,.069,.047,.072,'#504d46');
+      rounded(x,.144,ankle,.060,.047,.063,mint);
+      rounded(x,.079,ankle-.043,.07,.071,.126,boot);
+      rounded(x,.034,ankle-.048,.073,.035,.13,sole);
+      rounded(x,.075,ankle+.017,.064,.035,.031,'#6eaa8d');
+      return mesh();
+    });
+    const arms = [-1,1].map(side => {
+      rounded(side*.171,1.362,0,.069,.112,.072,sage);
+      rounded(side*.204,1.245,-.003,.061,.125,.059,lightSage);
+      rounded(side*.216,1.123,-.004,.048,.104,.052,sage);
+      rounded(side*.218,1.047,-.007,.043,.039,.045,mint);
+      rounded(side*.219,.995,-.015,.034,.052,.035,skin);
+      return mesh();
+    });
+    return {body,legs,arms};
   }
-  const pilots={'#a6f5cf':pilot('#a6f5cf'),'#ffc27c':pilot('#ffc27c')};
-  box(0,.04,0,.105,.44,.103,'#23374a');
-  box(0,0,-.04,.116,.12,.164,'#253b42');
-  const leg=mesh();
+
+  const explorer = buildExplorer();
   function render(mesh,offset,heading=0,warmSuit=0,limbSwing=0,glaze=0,limbPivot=.87,pose=null) {
     gl.bindBuffer(gl.ARRAY_BUFFER,mesh.buffer);
     attributes.forEach((loc,i)=>{
@@ -1564,15 +1619,6 @@ function createIsland(canvas, places, assets = {}) {
     tri(shadeCenter,shadowPoint(i*Math.PI/16),shadowPoint((i+1)*Math.PI/16),'#5f503d',false);
   }
   const shadow=mesh();
-  activeFinish = 7;
-  box(-.010,1.068,.246,.121,.092,.021,'#907250');
-  box(-.010,1.225,.261,.125,.018,.012,'#bd9b69');
-  box(.068,1.104,.270,.038,.042,.008,'#4c746e');
-  box(-.093,1.133,.267,.016,.053,.010,'#575b53');
-  activeFinish = 9;
-  box(.068,1.133,.279,.027,.008,.007,'#a1dac0');
-  activeFinish = 0;
-  const packDetail = mesh();
   const cameraTrees = [
     ...dockTrees.map(([x,,z,,spread])=>[x,z,spread*.79]),
     ...districtTrees.map(([x,z,,spread])=>[x,z,spread*.84]),
@@ -1677,21 +1723,14 @@ function createIsland(canvas, places, assets = {}) {
     const warm = avatar.color === '#ffc27c' ? 1 : 0;
     const phase = avatar.gaitPhase ?? 0;
     const hipHeight = .846+Math.sin(phase*Math.PI)*.026;
-    const bounce = explorer ? hipHeight-.88 : Math.abs(stride)*.035;
-    render(explorer ? explorer.body : pilots[avatar.color],
-      [avatar.x,ground+bounce,avatar.z],heading,warm);
-    if (explorer) render(packDetail,[avatar.x,ground+bounce,avatar.z],heading,warm);
+    const footing = [avatar.x,ground,avatar.z];
+    const torso = [avatar.x,ground+hipHeight-.88,avatar.z];
+    render(explorer.body,torso,heading,warm);
     for (const side of [-1,1]) {
       const index = (side+1)/2;
-      const x = explorer ? 0 : side*.16;
-      const z = explorer ? 0 : -side*stride*.23;
-      const c = Math.cos(heading), s = Math.sin(heading);
-      const footMesh = explorer ? explorer.legs[index] : leg;
-      render(footMesh,[avatar.x+x*c+z*s,ground+(explorer ? 0 : Math.max(0,-side*stride)*.055),avatar.z+z*c-x*s],
-        heading,warm,0,0,.87,explorer ? legPose(side,phase,avatar.swingSide ?? -1,hipHeight,avatar.strideDistance ?? .50) : null);
-      if (explorer?.arms[index]) {
-        render(explorer.arms[index],[avatar.x,ground+bounce,avatar.z],heading,warm,-side*stride*.21,0,1.37);
-      }
+      const pose = legPose(side,phase,avatar.swingSide ?? -1,hipHeight,avatar.strideDistance ?? .50);
+      render(explorer.legs[index],footing,heading,warm,0,0,.87,pose);
+      render(explorer.arms[index],torso,heading,warm,-side*stride*.21,0,1.37);
     }
     if (guide && !overview) {
       const {x,z,heading,bob,hint} = guide;
