@@ -258,6 +258,10 @@ function createIsland(canvas, places, assets = {}) {
       return max(lab,hub);
     }
     void main() {
+      if (finish>27.5 && finish<28.5) {
+        gl_FragColor=vec4(color,1.);
+        return;
+      }
       if (finish>26.5 && finish<27.5) {
         if (!gl_FrontFacing) discard;
         gl_FragColor = texture2D(labSignMap,color.rg);
@@ -1499,7 +1503,12 @@ function createIsland(canvas, places, assets = {}) {
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
-  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,createLabSignAtlas());
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,createLabSignAtlas(atlas => {
+    gl.activeTexture(gl.TEXTURE0+6);
+    gl.bindTexture(gl.TEXTURE_2D,labSignTexture);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,atlas);
+    canvas.dispatchEvent(new Event('material-ready'));
+  }));
   gl.uniform1i(uniforms.labSignMap,6);
   function buildExplorer() {
     const sage = '#789b81', lightSage = '#a4b59a', mint = '#82c9af';

@@ -64,6 +64,7 @@ let guideReady = false;
 let playerCharacter;
 let playerRequest;
 let running = false;
+let walkingUntil = 0;
 let lastDoor = -1;
 if (play || view === 'embed' || view === 'arrival-study') {
   const arrivalCanvas = playCanvas;
@@ -221,7 +222,7 @@ function openPlace(index, focus = true) {
   } else if (index === 2) {
     studio();
   } else if (index === 10) {
-    add('p', 'Look for the woven commons, the copper launch ramp and the guiding beacon. The Skills Lab directory shows each building’s mark. The path north leads to My Portfolio.');
+    add('p', 'Discovery Plaza will introduce what skills are, why they matter, how you can develop them, and how My Portfolio helps you record and reflect on your experiences. For now, choose a Skills Lab below or explore the island. My Portfolio is north of the plaza.');
     button('Walk to Communication Skills Lab',approachCommunication).className='primary';
     button('Open My Portfolio', () => travel(1));
     labDirectory();
@@ -500,6 +501,7 @@ function walk(dx, dz) {
   const previous = movement && motionEnabled() ? sampleStep(now) : avatar;
   const strideDistance = Math.min(.56,Math.hypot(x-previous.x,z-previous.z)*.5);
   movement = {x:previous.x,z:previous.z,heading:previous.heading || 0,start:now,strideDistance};
+  walkingUntil = now+movementDuration()+150;
   Object.assign(avatar, {x, z, facing: dx || dz, heading: Math.atan2(-dx,-dz)});
   update();
 }
@@ -643,7 +645,7 @@ function draw() {
   if (island) {
     cancelAnimationFrame(animationFrame);
     const now = performance.now();
-    if (playerCharacter) island.setPlayerFrame(playerCharacter.frame(now,Boolean(movement),running,!motionEnabled()));
+    if (playerCharacter) island.setPlayerFrame(playerCharacter.frame(now,Boolean(movement) || now<walkingUntil,running,!motionEnabled()));
     const nearWater=avatar.z>13 || avatar.z<-14 || Math.abs(avatar.x)>12;
     const animateWater = !insideStudio && !overview && nearWater && motionEnabled() && !document.hidden;
     const animateGuide = guideReady && !insideStudio && !overview && motionEnabled() && !document.hidden;

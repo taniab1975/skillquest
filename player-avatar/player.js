@@ -68,26 +68,30 @@ export async function loadPlayer(name, signal) {
     for (const part of parts) for (let i=0;i<part.count;i++) {
       const vertex = part.index ? part.index.getX(i) : i;
       const at = (part.offset+i)*7;
-      vertices.set(part.colors.subarray(vertex*3,vertex*3+3),at+3);
+      vertices[at+3] = part.colors[vertex*3];
+      vertices[at+4] = part.colors[vertex*3+1];
+      vertices[at+5] = part.colors[vertex*3+2];
+      vertices[at+6] = 28;
     }
     let current, action, lastFrame = -1;
-    let clipTime = 0, previousTime = 0;
+    let previousTime = 0;
     const actions = {};
     function frame(now, moving, running, reduced) {
       const state = moving ? running ? 'run' : 'walk' : clips.standing_relax ? 'standing_relax' : 'agree';
-      const stamp = reduced ? 0 : Math.floor(now/50);
+      const stamp = reduced ? 0 : Math.floor(now/33);
       if (current === state && stamp === lastFrame) return null;
       lastFrame = stamp;
       if (current !== state) {
-        action?.stop();
+        const previousAction = action;
         action = actions[state] ||= mixer.clipAction(clips[state]);
-        action.reset().play();
+        action.reset().setEffectiveWeight(1).play();
+        if (previousAction) action.crossFadeFrom(previousAction,.18,false);
         current = state;
-        clipTime = 0;
       }
-      clipTime += Math.min(.1,Math.max(0,(now-previousTime)/1000));
+      const delta = Math.min(.1,Math.max(0,(now-previousTime)/1000));
       previousTime = now;
-      mixer.setTime((reduced ? 0 : clipTime) % clips[state].duration);
+      if (reduced) mixer.setTime(0);
+      else mixer.update(delta);
       if (hips) {
         hips.position.x = hipsStart.x;
         hips.position.z = hipsStart.z;
@@ -98,11 +102,16 @@ export async function loadPlayer(name, signal) {
         mesh.skeleton?.update();
         for(let i=0;i<positions.length/3;i++) {
           mesh.getVertexPosition(i,point).applyMatrix4(mesh.matrixWorld);
-          positions.set([-(point.x-center.x)*scale,(point.y-bounds.min.y)*scale,-(point.z-center.z)*scale],i*3);
+          positions[i*3] = -(point.x-center.x)*scale;
+          positions[i*3+1] = (point.y-bounds.min.y)*scale;
+          positions[i*3+2] = -(point.z-center.z)*scale;
         }
         for(let i=0;i<count;i++) {
           const vertex = index ? index.getX(i) : i;
-          vertices.set(positions.subarray(vertex*3,vertex*3+3),(offset+i)*7);
+          const at = (offset+i)*7, source = vertex*3;
+          vertices[at] = positions[source];
+          vertices[at+1] = positions[source+1];
+          vertices[at+2] = positions[source+2];
         }
       }
       return vertices;

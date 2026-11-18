@@ -5,68 +5,63 @@ const labThemes = {
   2: {
     name:'Communication', accent:'#81e4dd', enamel:'#246f7b', landmark:'Signal forum',
     detail:'Two aerials carry messages in both directions from the glazed forum.',
-    meaning:'Two speech bubbles represent speaking, listening and replying.',
+    meaning:'Explain clearly, listen and check understanding.',
     mark:'M3 4h17a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H10l-6 5v-5H3a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm22 10h3a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3h-1v4l-5-4h-8a3 3 0 0 1-3-3v-5h9a5 5 0 0 0 5-5Z',
   },
   3: {
-    name:'Teamwork & Collaboration', accent:'#a9c7ff', enamel:'#315796', landmark:'Woven commons',
+    name:'Collaboration', accent:'#a9c7ff', enamel:'#315796', landmark:'Woven commons',
     detail:'Two roof wings join above an open meeting court and shared worktable.',
-    meaning:'Two people work on one piece together.',
+    meaning:'Work with others towards a shared result.',
     mark:'M8.2 3.6a3.6 3.6 0 1 1 0 7.2 3.6 3.6 0 0 1 0-7.2Zm15.6 0a3.6 3.6 0 1 1 0 7.2 3.6 3.6 0 0 1 0-7.2ZM8.2 12c-3.4 0-5.7 2.3-5.7 5.6v10h5.1V21l3-2.2h2.5v-4.2h-2.3A3.1 3.1 0 0 0 8.2 12Zm15.6 0c3.4 0 5.7 2.3 5.7 5.6v10h-5.1V21l-3-2.2h-2.5v-4.2h2.3a3.1 3.1 0 0 1 2.6-2.6ZM14 13.5h4v6.4h-4Z',
   },
   4: {
     name:'Initiative', accent:'#ffad85', enamel:'#ae542e', landmark:'Launch ramp',
     detail:'A copper roof rises from a low workbench bay into a forward cantilever.',
-    meaning:'An arrow rises from the first step.',
+    meaning:'Notice what needs doing and make a start.',
     mark:'M14 5h15v15h-5.5v-5.6L14 24l-4-4 9.5-9.5H14V5ZM3 24h5v3h8v3H3v-6Z',
   },
   5: {
-    name:'Critical Thinking & Problem-solving', accent:'#d7bdff', enamel:'#685393', landmark:'Test foundry',
+    name:'Problem-solving', accent:'#d7bdff', enamel:'#685393', landmark:'Test foundry',
     detail:'Two faceted test chambers meet at a violet observation bridge.',
-    meaning:'A checked puzzle piece represents testing a solution.',
+    meaning:'Explore a problem and test possible solutions.',
     mark:'M4 9h7V7a5 5 0 0 1 10 0v2h6v5h-1a4.5 4.5 0 0 0 0 9h1v5H4V9Zm5 9.5 4.6 4.6 7.4-7.6-2.5-2.4-4.9 5-2.1-2.1-2.5 2.5Z',
   },
   6: {
     name:'Adaptability', accent:'#a8ecc0', enamel:'#3c795b', landmark:'Tidefold conservatory',
     detail:'Offset jade roof segments unfold over the greenhouse and its planted court.',
-    meaning:'A curved arrow changes course around an obstacle.',
+    meaning:'Adjust your approach when circumstances change.',
     mark:'M4 27v-5C4 13.6 9.6 8.5 18 8.5h3V3l9 8.5-9 8.5v-5.7h-3c-5 0-8.1 2.8-8.1 7.7v5H4Zm15-5a3.4 3.4 0 1 1 0 6.8 3.4 3.4 0 0 1 0-6.8Z',
   },
   7: {
-    name:'Self-management & Organisation', accent:'#ffdd92', enamel:'#aa7b32', landmark:'Planning terraces',
+    name:'Self-management', accent:'#ffdd92', enamel:'#aa7b32', landmark:'Planning terraces',
     detail:'Three staggered bays follow an ordered sequence under a stepped roof.',
-    meaning:'A calendar with organised rows represents planning time and effort.',
+    meaning:'Plan your time, organise tasks and keep going.',
     mark:'M7 3h4v3h10V3h4v3h2.5A2.5 2.5 0 0 1 30 8.5v18a2.5 2.5 0 0 1-2.5 2.5h-23A2.5 2.5 0 0 1 2 26.5v-18A2.5 2.5 0 0 1 4.5 6H7V3Zm0 9v3h18v-3H7Zm0 6v3h11v-3H7Zm0 6v2h15v-2H7Z',
   },
   8: {
-    name:'Creativity & Innovation', accent:'#ffb6df', enamel:'#a2537e', landmark:'Prism atelier',
+    name:'Creativity', accent:'#ffb6df', enamel:'#a2537e', landmark:'Prism atelier',
     detail:'Three pleated glass sails fan out above a workshop floor.',
-    meaning:'A spark inside a bulb represents an idea taking shape.',
+    meaning:'Generate ideas and try different possibilities.',
     mark:'M16 2.8c-6.6 0-11.3 4.7-11.3 10.5 0 4 2.1 7 5.2 9.2V25h12.2v-2.5c3.1-2.2 5.2-5.2 5.2-9.2C27.3 7.5 22.6 2.8 16 2.8Zm0 4.2 1.9 4.8 4.9 1.9-4.9 1.9-1.9 4.8-1.9-4.8-4.9-1.9 4.9-1.9L16 7Zm-5 19.8h10v3H11v-3Z',
   },
   9: {
-    name:'Learning to Learn', accent:'#ffa9ad', enamel:'#8e3d4f', landmark:'Learning beacon',
+    name:'Leadership', accent:'#ffa9ad', enamel:'#8e3d4f', landmark:'Guiding beacon',
     detail:'A lighthouse lantern rises from an arcaded meeting terrace.',
-    meaning:'A beacon marks a next learning goal: reflect, practise and try again.',
+    meaning:'Help a group find direction and make progress.',
     mark:'M9 3h20l-5.2 6.1L29 15H13v8.2l3.7-3L30 29H2l7-5.2V3Z',
   },
 };
 
+const capabilityIconNames = ['communication','collaboration','initiative','problem-solving','adaptability','self-management','creativity','leadership'];
 function createLabMark(index) {
-  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
-  svg.setAttribute('viewBox','0 0 32 32');
-  svg.setAttribute('aria-hidden','true');
-  svg.setAttribute('focusable','false');
-  svg.classList.add('lab-mark');
-  const shape=document.createElementNS(svg.namespaceURI,'path');
-  shape.setAttribute('d',labThemes[index].mark);
-  shape.setAttribute('fill','currentColor');
-  shape.setAttribute('fill-rule','evenodd');
-  svg.append(shape);
-  return svg;
+  const image = document.createElement('img');
+  image.src = 'capability-icons/'+capabilityIconNames[index-2]+'.svg';
+  image.alt = '';
+  image.className = 'lab-mark';
+  return image;
 }
 
-function createLabSignAtlas() {
+function createLabSignAtlas(onUpdate) {
   const atlas=document.createElement('canvas');
   const cellWidth=512,cellHeight=160;
   atlas.width=cellWidth*2;
@@ -79,14 +74,12 @@ function createLabSignAtlas() {
     ink.strokeStyle='#a6855d';
     ink.lineWidth=5;
     ink.strokeRect(x+5,y+5,cellWidth-10,cellHeight-10);
-    ink.fillStyle=theme.accent;
-    ink.fillRect(x+23,y+37,84,84);
-    ink.save();
-    ink.translate(x+35,y+49);
-    ink.scale(1.86,1.86);
-    ink.fillStyle='#132a31';
-    ink.fill(new Path2D(theme.mark),'evenodd');
-    ink.restore();
+    const illustration = new Image();
+    illustration.onload = () => {
+      ink.drawImage(illustration,x+12,y+47,110,66);
+      onUpdate?.(atlas);
+    };
+    illustration.src = 'capability-icons/'+capabilityIconNames[Number(key)-2]+'.svg';
     ink.fillStyle='#fff8e9';
     ink.font='700 47px system-ui, sans-serif';
     ink.fillText(theme.name,x+127,y+75,358);
@@ -572,4 +565,3 @@ function buildLabExteriors(places, art, landscape, authoredBuildings) {
   plaque(site(2));
   finish(0);
 }
-

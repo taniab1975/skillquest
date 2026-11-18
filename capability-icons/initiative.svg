@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg
+  PUBLIC '-//W3C//DTD SVG 1.0//EN'
+  'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
+<svg width="214" height="122" preserveAspectRatio="xMinYMin meet" viewBox="0 0 214 122" xmlns="http://www.w3.org/2000/svg" version="1.0" fill-rule="evenodd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>...</title>
+	<desc>...</desc>
+	<clipPath id="clip">
+		<rect x="0" y="0" width="214" height="122"/>
+	</clipPath>
+	<g id="group" transform="scale(1,-1) translate(0,-122)" style="clip-path: url(#clip)">
+		<g transform="">
+			<rect x="0" y="0" width="214" height="122" rx="9" ry="9" style="stroke: none; stroke-linecap: butt; stroke-width: 2; fill: rgb(100%,94%,83%); fill-rule: evenodd;"/>
+			<polyline points="21 12, 193 12" style="stroke: rgb(69%,80%,82%); stroke-linecap: round; stroke-width: 1.2; fill: None; fill-rule: evenodd;"/>
+			<polyline points="82 17, 82 48, 86 48, 86 31, 102 31, 102 17" style="stroke: rgb(6%,16%,26%); stroke-linecap: round; stroke-width: 3; fill: None; fill-rule: evenodd;"/>
+			<polyline points="86 31, 86 17" style="stroke: rgb(6%,16%,26%); stroke-linecap: round; stroke-width: 3; fill: None; fill-rule: evenodd;"/>
+			<rect x="84" y="30" width="20" height="5" rx="2" ry="2" style="stroke: none; stroke-linecap: butt; stroke-width: 2; fill: rgb(97%,72%,24%); fill-rule: evenodd;"/>
+			<polyline points="108 10, 108 41, 112 41, 112 24, 128 24, 128 10" style="stroke: rgb(6%,16%,26%); stroke-linecap: round; stroke-width: 3; fill: None; fill-rule: evenodd;"/>
+			<polyline points="112 24, 112 10" style="stroke: rgb(6%,16%,26%); stroke-linecap: round; stroke-width: 3; fill: None; fill-rule: evenodd;"/>
+			<rect x="110" y="23" width="20" height="5" rx="2" ry="2" style="stroke: none; stroke-linecap: butt; stroke-width: 2; fill: rgb(97%,72%,24%); fill-rule: evenodd;"/>
+			<polyline points="54 37, 52 23, 50 13, 45 13" style="stroke: rgb(6%,16%,26%); stroke-linecap: round; stroke-width: 5; fill: None; fill-rule: evenodd;"/>
+			<polyline points="64 37, 66 23, 69 13, 74 13" style="stroke: rgb(6%,16%,26%); stroke-linecap: round; stroke-width: 5; fill: None; fill-rule: evenodd;"/>
+			<polygon points="49 57, 68 57, 71 37, 48 37" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(7%,49%,51%); fill-rule: evenodd;"/>
+			<circle cx="59" cy="67" r="9" style="stroke: none; stroke-linecap: butt; stroke-width: 2; fill: rgb(89%,63%,48%); fill-rule: evenodd;"/>
+			<polygon points="50 66, 50 73, 54 77, 64 77, 68 72, 60 72, 54 68" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(6%,16%,26%); fill-rule: evenodd;"/>
+			<circle cx="63" cy="67" r="1" style="stroke: none; stroke-linecap: butt; stroke-width: 2; fill: rgb(6%,16%,26%); fill-rule: evenodd;"/>
+			<polyline points="51 53, 44 42" style="stroke: rgb(7%,49%,51%); stroke-linecap: round; stroke-width: 5; fill: None; fill-rule: evenodd;"/>
+			<circle cx="44" cy="42" r="2.7" style="stroke: none; stroke-linecap: butt; stroke-width: 2; fill: rgb(89%,63%,48%); fill-rule: evenodd;"/>
+			<polyline points="67 53, 75 45, 84 49" style="stroke: rgb(7%,49%,51%); stroke-linecap: round; stroke-width: 5; fill: None; fill-rule: evenodd;"/>
+			<circle cx="84" cy="49" r="2.7" style="stroke: none; stroke-linecap: butt; stroke-width: 2; fill: rgb(89%,63%,48%); fill-rule: evenodd;"/>
+			<polyline points="149.15 41.02, 147.61 30.24, 146.07 22.54, 142.22 22.54" style="stroke: rgb(6%,16%,26%); stroke-linecap: round; stroke-width: 3.85; fill: None; fill-rule: evenodd;"/>
+			<polyline points="156.85 41.02, 158.39 30.24, 160.7 22.54, 164.55 22.54" style="stroke: rgb(6%,16%,26%); stroke-linecap: round; stroke-width: 3.85; fill: None; fill-rule: evenodd;"/>
+			<polygon points="145.3 56.42, 159.93 56.42, 162.24 41.02, 144.53 41.02" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(19%,47%,68%); fill-rule: evenodd;"/>
+			<circle cx="153.0" cy="64.12" r="6.93" style="stroke: none; stroke-linecap: butt; stroke-width: 2; fill: rgb(72%,46%,32%); fill-rule: evenodd;"/>
+			<polygon points="146.07 63.35, 146.07 68.74, 149.15 71.82, 156.85 71.82, 159.93 67.97, 153.77 67.97, 149.15 64.89" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(6%,16%,26%); fill-rule: evenodd;"/>
+			<circle cx="156.08" cy="64.12" r="0.77" style="stroke: none; stroke-linecap: butt; stroke-width: 2; fill: rgb(6%,16%,26%); fill-rule: evenodd;"/>
+			<polyline points="146.84 53.34, 143.76 44.87" style="stroke: rgb(19%,47%,68%); stroke-linecap: round; stroke-width: 3.85; fill: None; fill-rule: evenodd;"/>
+			<circle cx="143.76" cy="44.870000000000005" r="2.079" style="stroke: none; stroke-linecap: butt; stroke-width: 2; fill: rgb(72%,46%,32%); fill-rule: evenodd;"/>
+			<polyline points="159.16 53.34, 166.86 51.03" style="stroke: rgb(19%,47%,68%); stroke-linecap: round; stroke-width: 3.85; fill: None; fill-rule: evenodd;"/>
+			<circle cx="166.86" cy="51.03" r="2.079" style="stroke: none; stroke-linecap: butt; stroke-width: 2; fill: rgb(72%,46%,32%); fill-rule: evenodd;"/>
+			<polyline points="187.85 41.02, 189.39 30.24, 190.93 22.54, 194.78 22.54" style="stroke: rgb(6%,16%,26%); stroke-linecap: round; stroke-width: 3.85; fill: None; fill-rule: evenodd;"/>
+			<polyline points="180.15 41.02, 178.61 30.24, 176.3 22.54, 172.45 22.54" style="stroke: rgb(6%,16%,26%); stroke-linecap: round; stroke-width: 3.85; fill: None; fill-rule: evenodd;"/>
+			<polygon points="191.7 56.42, 177.07 56.42, 174.76 41.02, 192.47 41.02" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(38%,25%,52%); fill-rule: evenodd;"/>
+			<circle cx="184.0" cy="64.12" r="6.93" style="stroke: none; stroke-linecap: butt; stroke-width: 2; fill: rgb(52%,31%,24%); fill-rule: evenodd;"/>
+			<polygon points="190.93 63.35, 190.93 68.74, 187.85 71.82, 180.15 71.82, 177.07 67.97, 183.23 67.97, 187.85 64.89" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(6%,16%,26%); fill-rule: evenodd;"/>
+			<circle cx="180.92" cy="64.12" r="0.77" style="stroke: none; stroke-linecap: butt; stroke-width: 2; fill: rgb(6%,16%,26%); fill-rule: evenodd;"/>
+			<polyline points="190.16 53.34, 194.01 43.33" style="stroke: rgb(38%,25%,52%); stroke-linecap: round; stroke-width: 3.85; fill: None; fill-rule: evenodd;"/>
+			<circle cx="194.01" cy="43.33" r="2.079" style="stroke: none; stroke-linecap: butt; stroke-width: 2; fill: rgb(52%,31%,24%); fill-rule: evenodd;"/>
+			<polyline points="177.84 53.34, 174.76 43.33" style="stroke: rgb(38%,25%,52%); stroke-linecap: round; stroke-width: 3.85; fill: None; fill-rule: evenodd;"/>
+			<circle cx="174.76" cy="43.33" r="2.079" style="stroke: none; stroke-linecap: butt; stroke-width: 2; fill: rgb(52%,31%,24%); fill-rule: evenodd;"/>
+			<rect x="157" y="81" width="30" height="21" rx="6" ry="6" style="stroke: none; stroke-linecap: butt; stroke-width: 2; fill: rgb(38%,25%,52%); fill-rule: evenodd;"/>
+			<polygon points="161 83, 170 83, 165 74" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(38%,25%,52%); fill-rule: evenodd;"/>
+			<circle cx="164.0" cy="91.5" r="1.7" style="stroke: none; stroke-linecap: butt; stroke-width: 2; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<circle cx="172.0" cy="91.5" r="1.7" style="stroke: none; stroke-linecap: butt; stroke-width: 2; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<circle cx="180.0" cy="91.5" r="1.7" style="stroke: none; stroke-linecap: butt; stroke-width: 2; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+		</g>
+	</g>
+</svg>
