@@ -61,6 +61,9 @@ let arrivalGuide;
 let routeMap;
 let guideLoading;
 let guideReady = false;
+let playerCharacter;
+let playerRequest;
+let running = false;
 let lastDoor = -1;
 if (play || view === 'embed' || view === 'arrival-study') {
   const arrivalCanvas = playCanvas;
@@ -113,6 +116,7 @@ stillControl.onclick = () => {
 reducedMotion.addEventListener('change',draw);
 const motionEnabled = () => !stillView && !reducedMotion.matches;
 const stepDuration = 315;
+const movementDuration = () => running ? 190 : stepDuration;
 let movement = null;
 let animationFrame = 0;
 let lastWaterFrame = 0;
@@ -478,6 +482,7 @@ function walkInDoor(x,z) {
   });
 }
 function walk(dx, dz) {
+  if (insideStudio || document.documentElement.hasAttribute("data-play-activity") || document.documentElement.hasAttribute("data-activity-open")) return;
   const x = avatar.x + dx, z = avatar.z + dz;
   const entrance = walkInDoor(x,z);
   if (entrance >= 0) {
@@ -523,6 +528,7 @@ document.querySelectorAll('[data-move]').forEach(control => {
 const keys = {arrowup:[0,-1], w:[0,-1], arrowdown:[0,1], s:[0,1], arrowleft:[-1,0], a:[-1,0], arrowright:[1,0], d:[1,0]};
 document.addEventListener('keydown', event => {
   if (byId('arrival-guide').open) return;
+  running = event.shiftKey;
   if (play && document.documentElement.hasAttribute('data-play-activity')) {
     if (event.key === 'Escape') {
       event.preventDefault();
@@ -534,14 +540,14 @@ document.addEventListener('keydown', event => {
   const direction = keys[event.key.toLowerCase()];
   if (direction) {
     event.preventDefault();
-    if (!event.repeat || !movement || performance.now()-movement.start >= stepDuration*.90) walk(...direction);
+    if (!event.repeat || !movement || performance.now()-movement.start >= movementDuration()*.90) walk(...direction);
   } else if (event.key === 'Enter' && nearby() >= 0) {
     openPlace(nearby());
   }
 });
 
 function sampleStep(now) {
-  const progress = Math.min(1,(now-movement.start)/stepDuration);
+  const progress = Math.min(1,(now-movement.start)/movementDuration());
   const x = movement.x+(avatar.x-movement.x)*progress;
   const z = movement.z+(avatar.z-movement.z)*progress;
   const delta = (avatar.heading || 0)-movement.heading;
@@ -555,7 +561,34 @@ function tickWater(now) {
   if (now-lastWaterFrame >= 45) draw();
   else animationFrame = requestAnimationFrame(tickWater);
 }
+document.addEventListener('keyup', event => { if (event.key === 'Shift') running = false; });
+window.addEventListener('blur', () => { running = false; });
 document.addEventListener('visibilitychange', draw);
+
+async function selectPlayer(name) {
+  playerRequest?.abort();
+  const request = new AbortController();
+  playerRequest = request;
+  const status = byId('avatar-status');
+  status.textContent = 'Loading '+name+'…';
+  try {
+    const {loadPlayer} = await import('./player-avatar/player.js');
+    if (request.signal.aborted) return;
+    const character = await loadPlayer(name,request.signal);
+    if (request.signal.aborted) { character?.dispose(); return; }
+    playerCharacter?.dispose();
+    playerCharacter = character;
+    try { localStorage.setItem('skillsville-player-v1',name); } catch {}
+    byId('player-choice').value = name;
+    status.textContent = name === 'girl' ? 'Girl selected' : 'Boy selected';
+    draw();
+  } catch (error) {
+    if (!request.signal.aborted) {
+      status.textContent = 'Character could not load. Choose again to retry.';
+      console.warn('Player character unavailable',error);
+    }
+  }
+}
 
 async function selectGuide(name) {
   if (!island) return;
@@ -610,6 +643,7 @@ function draw() {
   if (island) {
     cancelAnimationFrame(animationFrame);
     const now = performance.now();
+    if (playerCharacter) island.setPlayerFrame(playerCharacter.frame(now,Boolean(movement),running,!motionEnabled()));
     const nearWater=avatar.z>13 || avatar.z<-14 || Math.abs(avatar.x)>12;
     const animateWater = !insideStudio && !overview && nearWater && motionEnabled() && !document.hidden;
     const animateGuide = guideReady && !insideStudio && !overview && motionEnabled() && !document.hidden;
@@ -625,7 +659,7 @@ function draw() {
     }
     movement = null;
     island(avatar,overview,angle,0,time,guideFrame(avatar,guideTime));
-    if (animateWater || animateGuide) {
+    if (animateWater || animateGuide || (playerCharacter && !insideStudio && motionEnabled() && !document.hidden)) {
       lastWaterFrame = now;
       animationFrame = requestAnimationFrame(tickWater);
     }
@@ -809,6 +843,14 @@ new ResizeObserver(draw).observe(island ? view3d : canvas);
 openPlace(0, false);
 update();
 byId('world-controls').inert = false;
+if (island) {
+  byId('player-picker').hidden = false;
+  let savedPlayer = 'boy';
+  try { if (localStorage.getItem('skillsville-player-v1') === 'girl') savedPlayer = 'girl'; } catch {}
+  byId('player-choice').value = savedPlayer;
+  byId('player-choice').onchange = event => selectPlayer(event.target.value);
+  void selectPlayer(savedPlayer);
+}
 if (play || view === 'embed') {
   routeMap = createSkillsvilleMap(places,coastline,hasDock);
   byId('map-toggle').addEventListener('click', () => routeMap.update(avatar));

@@ -1648,6 +1648,7 @@ function createIsland(canvas, places, assets = {}) {
   tri(...flatGuideArrow.slice(4),'#b8ff91',false);
   const guideArrow = mesh();
   let guideModel;
+  let playerModel;
   function drawIsland(avatar,overview,angle=0,stride=0,time=0,guide=null) {
     const {width,height}=canvas.getBoundingClientRect();
     if(!width||!height) return;
@@ -1725,12 +1726,16 @@ function createIsland(canvas, places, assets = {}) {
     const hipHeight = .846+Math.sin(phase*Math.PI)*.026;
     const footing = [avatar.x,ground,avatar.z];
     const torso = [avatar.x,ground+hipHeight-.88,avatar.z];
+    if (playerModel) {
+      render(playerModel,footing,heading);
+    } else {
     render(explorer.body,torso,heading,warm);
     for (const side of [-1,1]) {
       const index = (side+1)/2;
       const pose = legPose(side,phase,avatar.swingSide ?? -1,hipHeight,avatar.strideDistance ?? .50);
       render(explorer.legs[index],footing,heading,warm,0,0,.87,pose);
       render(explorer.arms[index],torso,heading,warm,-side*stride*.21,0,1.37);
+    }
     }
     if (guide && !overview) {
       const {x,z,heading,bob,hint} = guide;
@@ -1748,6 +1753,12 @@ function createIsland(canvas, places, assets = {}) {
       gl.disable(gl.BLEND);
     }
   }
+  drawIsland.setPlayerFrame = data => {
+    if (!data) return;
+    if (!playerModel) playerModel = {buffer:gl.createBuffer(),count:data.length/7};
+    gl.bindBuffer(gl.ARRAY_BUFFER,playerModel.buffer);
+    gl.bufferData(gl.ARRAY_BUFFER,data,gl.DYNAMIC_DRAW);
+  };
   drawIsland.setGuideModel = data => {
     if (guideModel) gl.deleteBuffer(guideModel.buffer);
     guideModel = null;
