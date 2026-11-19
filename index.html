@@ -111,6 +111,19 @@ html[data-embed] #map-toggle{right:6.65rem;min-height:36px}
 html[data-play][data-play-activity] :is(#map-toggle,#route-map),
 html[data-embed][data-activity-open] :is(#map-toggle,#route-map){display:none}
 html[data-play][data-play-activity] #your-guide,html[data-embed][data-activity-open] #your-guide{display:none}
+
+/* The portfolio uses the warm stone palette of its archive building. */
+#activity-panel:has(#panel > .row:first-child button[aria-pressed]) {
+  background:#f2e5ce; color:#342c22; border-color:#bca986; color-scheme:light;
+  & #label, & small, & time {color:#655039}
+  & .card {background:#fff8ea; border:1px solid #d8c7aa}
+  & .portfolio-skill, & summary, & a {color:#24594e}
+  & .portfolio-group {border-color:#cbb99a}
+  & button, & select, & input, & textarea {background:#fffaf1;color:#342c22;border:1px solid #aa997a}
+  & input, & textarea {display:block;width:100%;padding:.65rem;border-radius:.45rem;font:inherit}
+  & button[aria-pressed="true"], & button.primary {background:#27584c;color:white}
+  & #panel > details > summary {cursor:pointer;background:#27584c;color:white;padding:.8rem 1rem;border-radius:.55rem;font-weight:700;margin:.65rem 0}
+}
 </style>
 <link rel="stylesheet" href="communication-workshop.css?v=sea-glass">
 <header><div><div class="tag">SKILLSVILLE / COASTAL EXPEDITION</div><h1>SKILLQUEST</h1></div><span id="reward" role="status">0 expedition stamps</span></header>
@@ -151,4 +164,4 @@ if (location.protocol === "file:" && layout === "overview") {
   document.getElementById("local-preview").hidden = false;
 }
 </script>
-<script src="south-dock-mesh.js"></script><script src="lab-exteriors.js?v=illustrated-capabilities"></script><script src="districts.js?v=lab-studios"></script><script src="island.js?v=illustrated-capabilities"></script><script src="communication-workshop.js?v=silent-intro"></script><script src="arrival-guide/map.js?v=illustrated-capabilities"></script><script src="arrival-guide/guide.js?v=illustrated-capabilities"></script><script src="world.js?v=illustrated-capabilities"></script></html>
+<script src="south-dock-mesh.js"></script><script src="lab-exteriors.js?v=illustrated-capabilities"></script><script src="districts.js?v=lab-studios"></script><script src="island.js?v=illustrated-capabilities"></script><script src="communication-workshop.js?v=silent-intro"></script><script src="arrival-guide/map.js?v=illustrated-capabilities"></script><script src="arrival-guide/guide.js?v=illustrated-capabilities"></script><script src="world.js?v=portfolio-entry-review"></script></html>
