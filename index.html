@@ -113,7 +113,7 @@ html[data-embed][data-activity-open] :is(#map-toggle,#route-map){display:none}
 html[data-play][data-play-activity] #your-guide,html[data-embed][data-activity-open] #your-guide{display:none}
 
 /* The portfolio uses the warm stone palette of its archive building. */
-#activity-panel:has(#panel > .row:first-child button[aria-pressed]) {
+html[data-archive-station] #activity-panel {
   background:#f2e5ce; color:#342c22; border-color:#bca986; color-scheme:light;
   & #label, & small, & time {color:#655039}
   & .card {background:#fff8ea; border:1px solid #d8c7aa}
@@ -124,6 +124,15 @@ html[data-play][data-play-activity] #your-guide,html[data-embed][data-activity-o
   & button[aria-pressed="true"], & button.primary {background:#27584c;color:white}
   & #panel > details > summary {cursor:pointer;background:#27584c;color:white;padding:.8rem 1rem;border-radius:.55rem;font-weight:700;margin:.65rem 0}
 }
+#archive-interior{position:fixed;inset:0;z-index:30;background:#ead4ae;color:#352b22;overflow:hidden}
+#archive-interior canvas{display:block;width:100%;height:100%}
+#archive-interior h1{position:absolute;top:4%;left:50%;transform:translateX(-50%);background:#fff4dd;padding:.5em .9em;border-radius:.25em;text-align:center;font:600 clamp(1.2rem,3vw,2.1rem) Georgia,serif}
+#archive-interior button{position:absolute;transform:translate(-50%,-50%);min-height:44px;border:2px solid #ead7ae;background:#28564c;color:white;border-radius:1.5rem;padding:.55em .85em;box-shadow:0 4px 16px #39291955;white-space:nowrap}
+#archive-interior .archive-exit{background:#fff5df;color:#493e30}
+html[data-archive-station] #activity-panel{position:fixed;display:block;z-index:31;inset:auto auto 4% 50%;transform:translateX(-50%);width:min(38rem,94vw);max-height:85dvh;overflow:auto;background:#f4e7d1;color:#382f25;border:1px solid #ab9573;border-radius:1rem;padding:1rem}
+html[data-archive-station] #activity-panel .play-close{display:none}
+html[data-archive-station] #activity-panel :is(small,time,#label){color:#655039}
+html[data-archive-station] #activity-panel :is(input,textarea,select){width:100%;display:block;color:#332a22;background:#fffaf1;padding:.6rem}
 </style>
 <link rel="stylesheet" href="communication-workshop.css?v=sea-glass">
 <header><div><div class="tag">SKILLSVILLE / COASTAL EXPEDITION</div><h1>SKILLQUEST</h1></div><span id="reward" role="status">0 expedition stamps</span></header>
@@ -164,4 +173,4 @@ if (location.protocol === "file:" && layout === "overview") {
   document.getElementById("local-preview").hidden = false;
 }
 </script>
-<script src="south-dock-mesh.js"></script><script src="lab-exteriors.js?v=illustrated-capabilities"></script><script src="districts.js?v=lab-studios"></script><script src="island.js?v=illustrated-capabilities"></script><script src="communication-workshop.js?v=silent-intro"></script><script src="arrival-guide/map.js?v=illustrated-capabilities"></script><script src="arrival-guide/guide.js?v=illustrated-capabilities"></script><script src="world.js?v=portfolio-entry-review"></script></html>
+<script src="south-dock-mesh.js"></script><script src="lab-exteriors.js?v=illustrated-capabilities"></script><script src="districts.js?v=lab-studios"></script><script src="island.js?v=illustrated-capabilities"></script><script src="communication-workshop.js?v=silent-intro"></script><script src="arrival-guide/map.js?v=illustrated-capabilities"></script><script src="arrival-guide/guide.js?v=illustrated-capabilities"></script><script src="portfolio-studio.js"></script><script src="world.js?v=archive-interior"></script></html>
