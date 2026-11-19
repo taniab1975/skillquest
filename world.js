@@ -123,6 +123,7 @@ let animationFrame = 0;
 let lastWaterFrame = 0;
 let studioView = 'welcome';
 let insideStudio = false;
+let archive = null;
 let sort = 'timeline';
 let teacherView = false;
 let portfolioSource = view === 'embed' ? 'sample' : 'saved';
@@ -184,13 +185,56 @@ function labDirectory() {
   }
 }
 function closePlayActivity() {
+  if(archive){archive.leave();return;}
   document.documentElement.removeAttribute('data-play-activity');
   const leavingLab = insideStudio;
   if (leavingLab) openPlace(0, false);
   playCanvas.focus({preventScroll:true});
   if (leavingLab) arrivalGuide?.offerPortfolio();
 }
+function enterArchive() {
+  if (archive) return;
+  function station(title, render) {
+    archive.room.inert=true;
+    document.documentElement.dataset.archiveStation = '';
+    panel.replaceChildren();
+    byId('title').textContent=title;
+    byId('label').textContent='PORTFOLIO BUILDER';
+    button('Back to room', lobby);
+    render();
+    byId('title').focus();
+  }
+  function lobby() {
+    delete document.documentElement.dataset.archiveStation;
+    archive.room.inert=false;
+    archive.room.querySelector('button').focus();
+  }
+  function leave() {
+    archive.destroy();archive=null;
+    delete document.documentElement.dataset.archiveStation;
+    insideStudio=false;
+    openPlace(0,false);
+    closePlayActivity();
+    const toggle=byId('embed-activity');
+    if(view==='embed' && toggle.getAttribute('aria-expanded')==='true') toggle.click();
+    lastDoor=1;
+    update();playCanvas.focus();
+  }
+  archive=openPortfolioStudio({
+    build:()=>station('Story desk',()=>reflection(panel,true)),
+    collection:()=>{teacherView=false;station('My collection',gallery)},
+    review:()=>{teacherView=true;station('Teacher desk',gallery)},leave
+  });
+  archive.lobby=lobby;
+  archive.collection=()=>{teacherView=false;station('My collection',gallery)};
+  archive.refresh=()=>station(teacherView?'Teacher desk':'My collection',gallery);
+  archive.leave=leave;
+}
 function openPlace(index, focus = true) {
+  if(index===1){
+    lastDoor=1;routeMap?.finish(1);insideStudio=true;
+    enterArchive();return;
+  }
   if (index !== 2) studioView = 'welcome';
   insideStudio = index === 2;
   if (focus && places[index][4]) lastDoor = index;
@@ -250,15 +294,15 @@ function gallery() {
   const modes = add('div', '');
   modes.className = 'row';
   for (const [label, teacher] of [['Student portfolio', false], ['Teacher review', true]]) {
-    const tab = button(label, () => { teacherView = teacher; openPlace(1); }, modes);
+    const tab = button(label, () => { teacherView = teacher; archive.refresh(); }, modes);
     tab.setAttribute('aria-pressed', String(teacherView === teacher));
   }
   add('p', 'Fictional classroom preview · records and teacher feedback stay in this browser.');
-  if (!teacherView) {
+  if (!teacherView && !archive) {
     const entry = add('details', '');
     add('summary', 'Add an experience', entry);
     reflection(entry);
-  } else {
+  } else if (teacherView) {
     add('h3', 'Class overview');
     const roster = add('div', '');
     roster.className = 'row';
@@ -266,7 +310,7 @@ function gallery() {
       const covered = new Set(records.map(record => record.skill ?? 2));
       button(name + ' · ' + records.length + ' entries · ' + covered.size + '/8 capabilities', () => {
         portfolioSource = key;
-        openPlace(1);
+        archive.refresh();
       }, roster).setAttribute('aria-pressed', String(portfolioSource === key));
     }
   }
@@ -476,7 +520,7 @@ function mission() {
   button('Record in My Portfolio', () => showStudio('evidence')).className = 'primary';
 }
 
-function reflection(parent = panel) {
+function reflection(parent = panel, guided = false) {
   add('h3', 'Capture an experience', parent);
   add('p', 'Choose a fictional example from school, work or everyday life. What did you do that shows this capability?', parent);
   const form = add('form', '', parent);
@@ -515,6 +559,32 @@ function reflection(parent = panel) {
   submit.className = 'primary';
   const error = add('p', '', form);
   error.setAttribute('role', 'status');
+  if(guided){
+    const labels=[...form.querySelectorAll('label')];
+    const stages=[[0,1,3],[4],[5],[6],[7],[2,8,9]];
+    const titles=['Choose a memory','Set the scene','Your part','Your move','What changed?','Curate your story'];
+    const heading=add('h3','',form);form.prepend(heading);
+    const nav=add('div','',form);nav.className='row';
+    let page=0;
+    const back=button('Previous',()=>{page--;show()},nav);
+    const next=button('Continue',()=>{
+      for(const i of stages[page]){
+        const control=labels[i].lastElementChild;
+        if(!control.reportValidity())return;
+      }
+      page++;show();
+    },nav);
+    function show(){
+      labels.forEach((label,i)=>label.style.display=stages[page].includes(i)?'block':'none');
+      heading.textContent=titles[page];back.disabled=page===0;
+      next.hidden=page===stages.length-1;submit.hidden=!next.hidden;
+      labels[stages[page][0]].lastElementChild.focus();
+    }
+    submit.textContent='Place story in my collection';show();
+    form.addEventListener('submit',event=>{
+      if(page<stages.length-1){event.preventDefault();event.stopImmediatePropagation();next.click()}
+    },true);
+  }
   form.addEventListener('submit', event => {
     event.preventDefault();
     if (fields.some(field => !draft[field]?.trim())) {
@@ -527,6 +597,7 @@ function reflection(parent = panel) {
     draft = {};
     portfolioSource = 'saved';
     travel(1);
+    archive.collection();
     add('p', storage ? 'Reflection saved in this browser.' : 'Reflection added for this session. Browser storage is unavailable.').setAttribute('role', 'status');
   });
 }
@@ -955,6 +1026,7 @@ if (play || view === 'embed') {
     onClose: () => byId('your-guide').focus({preventScroll:true}),
   });
   byId('embed-activity').addEventListener('activity-closed', () => {
+    if(archive){archive.leave();return;}
     if (!insideStudio) return;
     openPlace(0, false);
     arrivalGuide.offerPortfolio();
