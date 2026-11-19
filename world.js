@@ -124,6 +124,7 @@ let lastWaterFrame = 0;
 let studioView = 'welcome';
 let insideStudio = false;
 let sort = 'timeline';
+let teacherView = false;
 let portfolioSource = view === 'embed' ? 'sample' : 'saved';
 
 function save() {
@@ -246,9 +247,29 @@ function openPlace(index, focus = true) {
   }
 }
 function gallery() {
-  const entry = add('details', '');
-  add('summary', 'Write a STAR entry', entry);
-  reflection(entry);
+  const modes = add('div', '');
+  modes.className = 'row';
+  for (const [label, teacher] of [['Student portfolio', false], ['Teacher review', true]]) {
+    const tab = button(label, () => { teacherView = teacher; openPlace(1); }, modes);
+    tab.setAttribute('aria-pressed', String(teacherView === teacher));
+  }
+  add('p', 'Fictional classroom preview · records and teacher feedback stay in this browser.');
+  if (!teacherView) {
+    const entry = add('details', '');
+    add('summary', 'Add an experience', entry);
+    reflection(entry);
+  } else {
+    add('h3', 'Class overview');
+    const roster = add('div', '');
+    roster.className = 'row';
+    for (const [key, name, records] of [['saved', 'Your demo student', data.entries], ['sample', 'Alex Morgan', sampleEntries]]) {
+      const covered = new Set(records.map(record => record.skill ?? 2));
+      button(name + ' · ' + records.length + ' entries · ' + covered.size + '/8 capabilities', () => {
+        portfolioSource = key;
+        openPlace(1);
+      }, roster).setAttribute('aria-pressed', String(portfolioSource === key));
+    }
+  }
   const source = add('div', '');
   const order = add('div', '');
   const content = add('div', '');
@@ -280,6 +301,7 @@ function gallery() {
     const card = add('article', '', parent);
     card.className = 'card portfolio-entry';
     if (!grouped) skillHeading(card, entry.skill, 'p');
+    if (entry.context) add('small', entry.context, card);
     if (entry.title) add('h4', entry.title, card);
     const iso = /^\d{4}-\d{2}-\d{2}$/.test(entry.date);
     const date = add('time', iso ? formatter.format(new Date(entry.date)) : entry.date, card);
@@ -291,12 +313,54 @@ function gallery() {
       add('dt', field, list);
       add('dd', entry[field], list);
     }
+    if (entry.interests) {
+      add('dt', 'Interests and possible futures', list);
+      add('dd', entry.interests, list);
+    }
+    if (entry.evidence) {
+      try {
+        const url = new URL(entry.evidence);
+        if (url.protocol === 'https:') {
+          const link = add('a', 'Open supporting evidence', star);
+          link.href = url.href;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+        }
+      } catch {}
+    }
+    const key = entry.reviewKey;
+    const review = data.reviews?.[key];
+    if (review) add('p', review.status + ' · ' + review.note, card);
+    if (teacherView) {
+      const editor = add('details', '', card);
+      add('summary', review ? 'Update teacher feedback' : 'Review this entry', editor);
+      const status = add('select', '', add('label', 'Review outcome', editor));
+      for (const value of ['Reviewed', 'Follow-up requested']) add('option', value, status);
+      status.value = review?.status || 'Reviewed';
+      const note = add('textarea', '', add('label', 'Feedback for the student', editor));
+      note.value = review?.note || '';
+      note.required = true;
+      note.maxLength = 900;
+      button('Save feedback', () => {
+        if (!note.value.trim()) { note.value = ''; note.reportValidity(); return; }
+        data.reviews ||= {};
+        data.reviews[key] = { status: status.value, note: note.value.trim() };
+        save();
+        renderEntries();
+        add('p', storage ? 'Feedback saved.' : 'Feedback available for this session only.', content).setAttribute('role', 'status');
+      }, editor);
+    }
+
   }
 
   function renderEntries() {
     content.replaceChildren();
     const sample = portfolioSource === 'sample';
-    const entries = sample ? sampleEntries : data.entries.map(entry => ({ ...entry, skill: 2 }));
+    const entries = (sample ? sampleEntries : data.entries).map((entry, index) => {
+      const legacyDate = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(entry.date);
+      const date = legacyDate ? [legacyDate[3], legacyDate[2].padStart(2, '0'), legacyDate[1].padStart(2, '0')].join('-') : entry.date;
+      return { ...entry, date, skill: entry.skill ?? 2, reviewKey: portfolioSource + '-' + (entry.id || index) };
+    }).sort((a, b) => b.date.localeCompare(a.date));
     add('p', sample
       ? 'Alex Morgan · Fictional student. Follow the evidence from February to September.'
       : 'Your STAR reflections are saved in this browser.', content);
@@ -325,7 +389,7 @@ function gallery() {
     }
   }
 
-  choices(source, 'Portfolio records', [['sample', 'Sample student'], ['saved', 'My entries']],
+  if (!teacherView) choices(source, 'Portfolio records', [['sample', 'Sample student'], ['saved', 'My entries']],
     portfolioSource, key => { portfolioSource = key; });
   choices(order, 'View evidence', [['timeline', 'Chronology'], ['skill', 'By skill type']],
     sort, key => { sort = key; });
@@ -413,10 +477,30 @@ function mission() {
 }
 
 function reflection(parent = panel) {
-  add('h3', 'Take it into your world', parent);
-  add('p', 'Recall a real time you explained something, listened or checked understanding. For this demo, enter a fictional example.', parent);
+  add('h3', 'Capture an experience', parent);
+  add('p', 'Choose a fictional example from school, work or everyday life. What did you do that shows this capability?', parent);
   const form = add('form', '', parent);
-  const prompts = ['Where were you and what was happening?', 'What did you need to communicate?', 'What did you say, do or check?', 'What happened? What might you try next time?'];
+  function input(label, key, type, required = false) {
+    const field = add('input', '', add('label', label, form));
+    field.type = type;
+    field.required = required;
+    field.value = draft[key] || '';
+    field.addEventListener('input', () => { draft[key] = field.value; });
+    return field;
+  }
+  input('Experience title', 'title', 'text', true);
+  const date = input('Experience date', 'date', 'date', true);
+  if (!date.value) date.value = new Date().toLocaleDateString('sv-SE');
+  function select(label, options, key) {
+    const field = add('select', '', add('label', label, form));
+    for (const [value, name] of options) add('option', name, field).value = value;
+    if (draft[key]) field.value = draft[key];
+    field.onchange = () => { draft[key] = field.value; };
+    return field;
+  }
+  const skill = select('Capability demonstrated', Object.entries(labThemes).map(([key, theme]) => [key, theme.name]), 'skill');
+  const context = select('Where did it happen?', ['School', 'Work', 'Home', 'Volunteering', 'Sport or community', 'Other'].map(name => [name, name]), 'context');
+  const prompts = ['Where were you and what was happening?', 'What were you responsible for?', 'What did you personally do?', 'What changed and how could you tell?'];
   for (const [index, field] of fields.entries()) {
     const label = add('label', field + ' · ' + prompts[index], form);
     const area = add('textarea', '', label);
@@ -425,6 +509,8 @@ function reflection(parent = panel) {
     area.value = draft[field] || '';
     area.addEventListener('input', () => { draft[field] = area.value; });
   }
+  input('What did you enjoy or want to explore next? (optional)', 'interests', 'text');
+  input('Supporting evidence link (optional, https://)', 'evidence', 'url').pattern = 'https://.+';
   const submit = add('button', 'Save and open My Portfolio', form);
   submit.className = 'primary';
   const error = add('p', '', form);
@@ -435,7 +521,8 @@ function reflection(parent = panel) {
       error.textContent = 'Please write something in each STAR field.';
       return;
     }
-    data.entries.push({...draft, date: new Date().toLocaleDateString('en-AU')});
+    data.entries.push({...draft, id: crypto.randomUUID(), skill: Number(skill.value), context: context.value, date: date.value});
+    teacherView = false;
     save();
     draft = {};
     portfolioSource = 'saved';
